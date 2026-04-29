@@ -1,0 +1,465 @@
+// Starlink Venezuela — Modelo de datos
+// Todos los montos en USD (Decimal 12,2)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =================== USUARIOS Y ROLES ===================
+
+enum RoleName {
+  ADMIN
+  INVENTARIO
+  CLIENTE
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  name              String
+  passwordHash      String
+  mustChangePassword Boolean  @default(true)
+  active            Boolean   @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  roles    UserRole[]
+  client   Client?
+  auditLogs AuditLog[]
+
+  @@index([email])
+}
+
+model Role {
+  id          String    @id @default(cuid())
+  name        RoleName  @unique
+  description String?
+  users       UserRole[]
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  assignedAt DateTime @default(now())
+
+  @@id([userId, roleId])
+  @@index([roleId])
+}
+
+// =================== CLIENTES ===================
+
+model Client {
+  id          String   @id @default(cuid())
+  userId      String?  @unique
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  firstName   String
+  lastName    String
+  documentId  String?  @unique // Cédula / RIF
+  email       String
+  phone       String
+  address     String?
+  notes       String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriptions Subscription[]
+  payments      Payment[]
+  warranties    Warranty[]
+  paymentReports PaymentReport[]
+  sales         Sale[]
+
+  @@index([email])
+  @@index([phone])
+}
+
+// =================== PRODUCTOS E INVENTARIO ===================
+
+model ProductCategory {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  sku           String   @unique
+  name          String
+  description   String?
+  features      String?  // Características principales (texto libre / markdown)
+  categoryId    String?
+  category      ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // Precios en USD
+  costPrice     Decimal  @db.Decimal(12, 2) // costo unitario
+  salePrice     Decimal  @db.Decimal(12, 2) // precio de venta
+
+  // Inventario
+  minStock      Int      @default(0)        // umbral mínimo para alertar
+  warrantyDays  Int      @default(0)        // días de garantía por unidad vendida
+
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  movements     InventoryMovement[]
+  saleItems     SaleItem[]
+  warranties    Warranty[]
+
+  @@index([sku])
+  @@index([categoryId])
+}
+
+enum MovementType {
+  ENTRADA      // Compra / reposición
+  SALIDA       // Venta
+  AJUSTE       // Ajuste manual (+/-)
+  MERMA        // Pérdida / daño
+  DEVOLUCION   // Devolución de cliente
+}
+
+model InventoryMovement {
+  id          String       @id @default(cuid())
+  productId   String
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  type        MovementType
+  quantity    Int          // signo según type: ENTRADA +, SALIDA -, etc. (se normaliza en lógica)
+  unitCost    Decimal?     @db.Decimal(12, 2) // costo unitario al momento (solo ENTRADA)
+  reference   String?      // # factura, remisión, nota
+  notes       String?
+
+  occurredAt  DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+
+  @@index([productId, occurredAt])
+  @@index([type])
+}
+
+// =================== PLANES STARLINK ===================
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+  ONE_TIME
+}
+
+model Plan {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  name          String
+  description   String?
+  details       String?  // Detalle extendido del plan (texto libre / markdown)
+  price         Decimal  @db.Decimal(12, 2) // precio en USD
+  cost          Decimal? @db.Decimal(12, 2) // costo estimado para margen
+  billingCycle  BillingCycle @default(MONTHLY)
+  active        Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subscriptions Subscription[]
+  planRequests  PlanRequest[]
+}
+
+enum SubscriptionStatus {
+  ACTIVA
+  SUSPENDIDA
+  CANCELADA
+}
+
+model Subscription {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  planId      String
+  plan        Plan     @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  status      SubscriptionStatus @default(ACTIVA)
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+  // Día del mes para el cobro recurrente (1-28)
+  billingDay  Int      @default(1)
+  // Precio pactado (puede diferir del plan.price si hubo descuento)
+  priceLocked Decimal  @db.Decimal(12, 2)
+
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  payments    Payment[]
+  paymentReports PaymentReport[]
+
+  @@index([clientId, status])
+  @@index([planId])
+}
+
+// =================== PAGOS ===================
+
+enum PaymentStatus {
+  PENDIENTE
+  REPORTADO   // Cliente reportó, pendiente de verificación admin
+  CONFIRMADO
+  RECHAZADO
+}
+
+enum PaymentMethod {
+  ZELLE
+  PAYPAL
+  BINANCE
+  EFECTIVO_USD
+  TRANSFERENCIA_USD
+  OTRO
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  clientId      String
+  client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  subscriptionId String?
+  subscription  Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  amount        Decimal       @db.Decimal(12, 2) // USD
+  method        PaymentMethod
+  reference     String?       // # confirmación, hash, etc.
+  status        PaymentStatus @default(PENDIENTE)
+  periodStart   DateTime?     // Período que cubre (inicio)
+  periodEnd     DateTime?     // Período que cubre (fin)
+  paidAt        DateTime?
+  confirmedAt   DateTime?
+  confirmedBy   String?       // userId admin que confirmó
+  notes         String?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  report        PaymentReport?
+
+  @@index([clientId, status])
+  @@index([subscriptionId])
+  @@index([status])
+}
+
+// Reporte de pago enviado por el cliente (antes de confirmación admin)
+model PaymentReport {
+  id             String   @id @default(cuid())
+  clientId       String
+  client         Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  paymentId      String?  @unique
+  payment        Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  amount         Decimal  @db.Decimal(12, 2)
+  method         PaymentMethod
+  reference      String?
+  reportedAt     DateTime @default(now())
+  receiptUrl     String?  // Comprobante (futuro: subir archivo)
+  notes          String?
+
+  reviewed       Boolean  @default(false)
+  reviewedAt     DateTime?
+  reviewedBy     String?
+
+  @@index([clientId])
+  @@index([reviewed])
+}
+
+// =================== SOLICITUDES DE ACTIVACIÓN DE PLAN ===================
+// Solicitud pública de un usuario que ya tiene antena Starlink y quiere contratar
+// un plan. No requiere autenticación; el admin la revisa y activa manualmente.
+
+enum PlanRequestStatus {
+  PENDIENTE
+  PROCESADA
+  RECHAZADA
+}
+
+model PlanRequest {
+  id             String   @id @default(cuid())
+
+  firstName      String
+  lastName       String
+  email          String
+  phone          String
+  antennaId      String   // Kit / Service Line ID de la antena Starlink
+
+  planId         String
+  plan           Plan     @relation(fields: [planId], references: [id], onDelete: Restrict)
+  amount         Decimal  @db.Decimal(12, 2) // USD, snapshot del precio al enviar
+
+  paymentMethod  PaymentMethod
+  paymentReference String?
+  receiptUrl     String   // Comprobante subido (ruta pública bajo /uploads/...)
+  notes          String?
+
+  status         PlanRequestStatus @default(PENDIENTE)
+  reviewedAt     DateTime?
+  reviewedBy     String?   // userId admin que procesó
+  reviewNotes    String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email])
+  @@index([antennaId])
+  @@index([planId])
+}
+
+// =================== VENTAS DE PRODUCTOS ===================
+
+model Sale {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  total       Decimal  @db.Decimal(12, 2)
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  items       SaleItem[]
+  warranties  Warranty[]
+
+  @@index([clientId])
+}
+
+model SaleItem {
+  id         String  @id @default(cuid())
+  saleId     String
+  sale       Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity   Int
+  unitPrice  Decimal @db.Decimal(12, 2)
+  subtotal   Decimal @db.Decimal(12, 2)
+
+  @@index([saleId])
+  @@index([productId])
+}
+
+// =================== GARANTÍAS ===================
+
+enum WarrantyStatus {
+  VIGENTE
+  VENCIDA
+  RECLAMADA
+  ANULADA
+}
+
+model Warranty {
+  id         String   @id @default(cuid())
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  saleId     String?
+  sale       Sale?    @relation(fields: [saleId], references: [id], onDelete: SetNull)
+
+  serialNumber String?
+  startsAt   DateTime @default(now())
+  endsAt     DateTime
+  status     WarrantyStatus @default(VIGENTE)
+  claimNotes String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([productId])
+  @@index([status])
+}
+
+// =================== NOTIFICACIONES ===================
+
+enum NotificationChannelType {
+  WHATSAPP
+  TELEGRAM
+  INSTAGRAM
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDIENTE
+  ENVIADO
+  FALLIDO
+}
+
+model NotificationChannel {
+  id          String   @id @default(cuid())
+  type        NotificationChannelType @unique
+  enabled     Boolean  @default(false)
+  config      Json?    // credenciales/parámetros específicos
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model NotificationTemplate {
+  id          String   @id @default(cuid())
+  code        String   @unique   // p.ej. "PAYMENT_REMINDER", "STOCK_DEFICIT", "NEW_USER_PASSWORD"
+  name        String
+  subject     String?              // para email/push
+  body        String               // cuerpo con placeholders {{variable}}
+  channelType NotificationChannelType?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  logs        NotificationLog[]
+}
+
+model NotificationLog {
+  id          String   @id @default(cuid())
+  templateId  String?
+  template    NotificationTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  channel     NotificationChannelType
+  recipient   String               // email, phone, username, chatId, etc.
+  subject     String?
+  body        String
+  status      NotificationStatus   @default(PENDIENTE)
+  providerId  String?              // id retornado por el proveedor
+  error       String?
+
+  relatedType String?              // "Payment" | "Subscription" | "Warranty" | "Inventory" | "User"
+  relatedId   String?
+
+  createdAt   DateTime @default(now())
+  sentAt      DateTime?
+
+  @@index([channel, status])
+  @@index([recipient])
+  @@index([relatedType, relatedId])
+}
+
+// =================== AUDITORÍA ===================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   // "CREATE" | "UPDATE" | "DELETE" | "LOGIN" | ...
+  entity     String   // nombre del modelo
+  entityId   String?
+  diff       Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([entity, entityId])
+}

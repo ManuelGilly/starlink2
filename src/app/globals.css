@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Tema claro — gris muy tenue, tipografía oscura, azul Starlink como acento */
+    --background: 0 0% 100%;          /* #ffffff */
+    --foreground: 0 0% 9%;            /* #171717 */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 212 100% 45%;          /* azul Starlink un poco más profundo para legibilidad */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;            /* #f5f5f5 */
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;     /* #666 */
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;               /* #e5e5e5 */
+    --input: 0 0% 96%;
+    --ring: 212 100% 45%;
+    --radius: 0.25rem;
+  }
+
+  .dark {
+    /* Paleta Starlink-inspired: negro profundo, paneles grises oscuros, azul acento */
+    --background: 0 0% 4%;           /* #0a0a0a */
+    --foreground: 0 0% 98%;          /* #fafafa */
+    --card: 0 0% 7%;                 /* #121212 */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 212 100% 50%;         /* #0080ff — azul Starlink */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 12%;           /* #1f1f1f */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 10%;               /* #1a1a1a */
+    --muted-foreground: 0 0% 60%;    /* #999 */
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;        /* #dc2626 */
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 14%;              /* #242424 */
+    --input: 0 0% 10%;
+    --ring: 212 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html, body {
+    @apply bg-background text-foreground;
+  }
+  body {
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+    letter-spacing: -0.005em;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), ui-sans-serif, system-ui;
+    letter-spacing: -0.02em;
+  }
+  /* Scrollbars oscuros */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground;
+  }
+  .stat-value {
+    font-family: var(--font-display), ui-sans-serif, system-ui;
+    @apply text-3xl font-semibold tracking-tight;
+  }
+  .section-title {
+    font-family: var(--font-display), ui-sans-serif, system-ui;
+    @apply text-base font-semibold uppercase tracking-[0.12em];
+  }
+  .hero-title {
+    font-family: var(--font-display), ui-sans-serif, system-ui;
+    @apply text-5xl font-semibold tracking-[-0.03em] leading-[0.95] md:text-6xl;
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.6) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.6) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: -1px -1px;
+  }
+  .radial-glow {
+    background: radial-gradient(ellipse at top, hsl(var(--primary) / 0.18), transparent 60%);
+  }
+  .radial-glow-bottom {
+    background: radial-gradient(ellipse at bottom, hsl(var(--primary) / 0.12), transparent 60%);
+  }
+  .noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+  }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.6s ease-out both; }
+.animate-fade-up-delay-1 { animation: fade-up 0.6s ease-out 0.08s both; }
+.animate-fade-up-delay-2 { animation: fade-up 0.6s ease-out 0.16s both; }
+.animate-fade-up-delay-3 { animation: fade-up 0.6s ease-out 0.24s both; }
