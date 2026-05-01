@@ -97,9 +97,9 @@ export function NewSaleForm({ clients, products }: { clients: Client[]; products
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3">
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="min-w-[260px] flex-1">
+    <form onSubmit={submit} className="space-y-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="sm:col-span-2">
           <Label>Cliente</Label>
           <select
             className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -119,53 +119,53 @@ export function NewSaleForm({ clients, products }: { clients: Client[]; products
         </div>
       </div>
 
-      <div className="space-y-2 border-t pt-3">
-        {items.map((it, idx) => (
-          <div key={idx} className="flex flex-wrap items-end gap-2">
-            <div className="min-w-[220px] flex-1">
-              <Label>Producto</Label>
-              <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={it.productId}
-                onChange={(e) => onProductChange(idx, e.target.value)}
-              >
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name} — ${Number(p.salePrice).toFixed(2)}</option>
-                ))}
-              </select>
-            </div>
-            <div className="w-24">
-              <Label>Cantidad</Label>
-              <Input type="number" min={1} value={it.quantity} onChange={(e) => setItem(idx, { quantity: Number(e.target.value) })} />
-            </div>
-            <div className="w-32">
-              <Label>Precio USD</Label>
-              <Input type="number" step="0.01" min={0} value={it.unitPrice} onChange={(e) => setItem(idx, { unitPrice: e.target.value })} />
-            </div>
-            <div className="w-24">
-              <Label>Subtotal</Label>
-              <div className="h-10 rounded-md border border-input bg-muted px-3 py-2 font-mono text-xs">
+      <div className="rounded-md border border-border bg-muted/20">
+        <div className="grid grid-cols-12 gap-2 border-b border-border bg-muted/30 px-3 py-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="col-span-5">Producto</div>
+          <div className="col-span-2 text-right">Cantidad</div>
+          <div className="col-span-2 text-right">Precio USD</div>
+          <div className="col-span-2 text-right">Subtotal</div>
+          <div className="col-span-1" />
+        </div>
+        <div className="divide-y divide-border">
+          {items.map((it, idx) => (
+            <div key={idx} className="grid grid-cols-12 items-center gap-2 px-3 py-2">
+              <div className="col-span-5">
+                <select
+                  className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+                  value={it.productId}
+                  onChange={(e) => onProductChange(idx, e.target.value)}
+                >
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-span-2">
+                <Input className="h-9 text-right" type="number" min={1} value={it.quantity} onChange={(e) => setItem(idx, { quantity: Number(e.target.value) })} />
+              </div>
+              <div className="col-span-2">
+                <Input className="h-9 text-right font-mono" type="number" step="0.01" min={0} value={it.unitPrice} onChange={(e) => setItem(idx, { unitPrice: e.target.value })} />
+              </div>
+              <div className="col-span-2 text-right font-mono text-sm">
                 ${((Number(it.unitPrice) || 0) * (Number(it.quantity) || 0)).toFixed(2)}
               </div>
+              <div className="col-span-1 flex justify-end">
+                <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => removeItem(idx)} disabled={items.length === 1}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
-            <Button type="button" variant="outline" size="icon" onClick={() => removeItem(idx)} disabled={items.length === 1}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
+          ))}
+        </div>
+        <div className="flex items-center justify-between border-t border-border px-3 py-2">
+          <Button type="button" variant="outline" size="sm" onClick={addItem}>
+            <Plus className="mr-1 h-3.5 w-3.5" /> Agregar producto
+          </Button>
+          <div className="text-right">
+            <span className="mr-2 text-[10px] uppercase tracking-wide text-muted-foreground">Total</span>
+            <span className="font-mono text-base font-medium">${total.toFixed(2)}</span>
           </div>
-        ))}
-        <Button type="button" variant="outline" size="sm" onClick={addItem}>
-          <Plus className="mr-1 h-3.5 w-3.5" /> Agregar producto
-        </Button>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3 border-t pt-3">
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={createWarranties} onChange={(e) => setCreateWarranties(e.target.checked)} />
-          Crear garantías automáticamente
-        </label>
-        <div className="ml-auto text-right">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Total</div>
-          <div className="font-mono text-lg">${total.toFixed(2)}</div>
         </div>
       </div>
 
@@ -174,7 +174,11 @@ export function NewSaleForm({ clients, products }: { clients: Client[]; products
         <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          <input type="checkbox" checked={createWarranties} onChange={(e) => setCreateWarranties(e.target.checked)} />
+          Crear garantías automáticamente
+        </label>
         <Button disabled={loading || items.length === 0 || !clientId}>{loading ? "Registrando..." : "Registrar venta"}</Button>
       </div>
     </form>

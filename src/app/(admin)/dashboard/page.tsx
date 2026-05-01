@@ -111,7 +111,7 @@ export default async function DashboardPage() {
         {/* ---- KPIs financieros ---- */}
         <section>
           <SectionTitle title="Resumen financiero" hint="Mes en curso" />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <Kpi
               label="Facturación mes"
               value={formatUSD(kpis.billingMonth)}
@@ -120,10 +120,10 @@ export default async function DashboardPage() {
               hint={`Año: ${formatUSD(kpis.billingYear)}`}
             />
             <Kpi
-              label="Ingresos últimos 30 días"
+              label="Ingresos 30 días"
               value={formatUSD(kpis.billingLast30)}
               delta={{ value: revenueDelta, positive: revenueDelta >= 0 }}
-              hint={`vs anteriores 30d: ${formatUSD(kpis.billingPrev30)}`}
+              hint={`Prev: ${formatUSD(kpis.billingPrev30)}`}
             />
             <Kpi
               label="Ganancia bruta mes"
@@ -132,10 +132,22 @@ export default async function DashboardPage() {
               hint={`Compras: ${formatUSD(kpis.purchasesMonth)}`}
             />
             <Kpi
-              label="MRR (recurrente mensual)"
+              label="MRR"
               value={formatUSD(kpis.mrr)}
               tone="positive"
-              hint={`Ticket promedio: ${formatUSD(kpis.averageTicket)}`}
+              hint={`Ticket prom: ${formatUSD(kpis.averageTicket)}`}
+            />
+            <Kpi
+              label="Ventas mes"
+              value={formatUSD(salesTotalMonth)}
+              hint={`${salesCountMonth} ${salesCountMonth === 1 ? "venta" : "ventas"}`}
+              tone="positive"
+              icon={ShoppingCart}
+            />
+            <Kpi
+              label="Ticket prom. venta"
+              value={formatUSD(salesCountMonth > 0 ? salesTotalMonth / salesCountMonth : 0)}
+              icon={TrendingUp}
             />
           </div>
         </section>
@@ -151,70 +163,6 @@ export default async function DashboardPage() {
             <Kpi label="Inversión inventario" value={formatUSD(kpis.inventoryInvestment)} hint={`Venta: ${formatUSD(kpis.inventoryValueAtSale)}`} icon={Package} />
             <Kpi label="Stock crítico" value={String(kpis.lowStockCount)} tone={kpis.lowStockCount > 0 ? "danger" : "positive"} icon={AlertTriangle} />
           </div>
-        </section>
-
-        {/* ---- Ventas ---- */}
-        <section>
-          <SectionTitle title="Ventas" hint="Productos" />
-          <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Kpi
-              label="Ventas mes"
-              value={formatUSD(salesTotalMonth)}
-              hint={`${salesCountMonth} ${salesCountMonth === 1 ? "venta" : "ventas"}`}
-              tone="positive"
-              icon={ShoppingCart}
-            />
-            <Kpi
-              label="Ticket promedio venta"
-              value={formatUSD(salesCountMonth > 0 ? salesTotalMonth / salesCountMonth : 0)}
-              icon={TrendingUp}
-            />
-          </div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Ventas recientes</span>
-                <Link href="/ventas" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground">
-                  Ver todas →
-                </Link>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Productos</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentSales.map((s) => (
-                    <TableRow key={s.id}>
-                      <TableCell className="text-muted-foreground">{formatDate(s.createdAt)}</TableCell>
-                      <TableCell className="font-medium">
-                        <Link className="hover:underline" href={`/clientes/${s.clientId}`}>
-                          {s.client.firstName} {s.client.lastName}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-[12px] text-muted-foreground">
-                        {s.items.map((it) => `${it.quantity}× ${it.product.name}`).join(", ")}
-                      </TableCell>
-                      <TableCell className="text-right font-mono">{formatUSD(Number(s.total))}</TableCell>
-                    </TableRow>
-                  ))}
-                  {recentSales.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                        Sin ventas aún
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
         </section>
 
         {/* ---- Gráficos financieros ---- */}
@@ -404,43 +352,92 @@ export default async function DashboardPage() {
           </Card>
         </section>
 
-        {/* ---- Pagos recientes ---- */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Pagos recientes</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Monto</TableHead>
-                  <TableHead>Método</TableHead>
-                  <TableHead>Estado</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentPayments.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="text-muted-foreground">{formatDate(p.createdAt)}</TableCell>
-                    <TableCell className="font-medium">{p.client.firstName} {p.client.lastName}</TableCell>
-                    <TableCell className="font-mono">{formatUSD(Number(p.amount))}</TableCell>
-                    <TableCell className="text-muted-foreground text-[12px]">{p.method}</TableCell>
-                    <TableCell>
-                      <Badge variant={p.status === "CONFIRMADO" ? "success" : p.status === "RECHAZADO" ? "destructive" : "secondary"}>
-                        {p.status}
-                      </Badge>
-                    </TableCell>
+        {/* ---- Movimientos recientes ---- */}
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Pagos recientes</span>
+                <Link href="/pagos" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground">
+                  Ver todos →
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead className="text-right">Monto</TableHead>
+                    <TableHead>Estado</TableHead>
                   </TableRow>
-                ))}
-                {recentPayments.length === 0 && (
-                  <TableRow><TableCell colSpan={5} className="py-8 text-center text-muted-foreground">Sin pagos aún</TableCell></TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHeader>
+                <TableBody>
+                  {recentPayments.map((p) => (
+                    <TableRow key={p.id}>
+                      <TableCell className="text-muted-foreground text-[12px]">{formatDate(p.createdAt)}</TableCell>
+                      <TableCell className="font-medium">
+                        <div>{p.client.firstName} {p.client.lastName}</div>
+                        <div className="text-[11px] text-muted-foreground">{p.method}</div>
+                      </TableCell>
+                      <TableCell className="text-right font-mono">{formatUSD(Number(p.amount))}</TableCell>
+                      <TableCell>
+                        <Badge variant={p.status === "CONFIRMADO" ? "success" : p.status === "RECHAZADO" ? "destructive" : "secondary"}>
+                          {p.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {recentPayments.length === 0 && (
+                    <TableRow><TableCell colSpan={4} className="py-8 text-center text-muted-foreground">Sin pagos aún</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2"><ShoppingCart className="h-3.5 w-3.5" />Ventas recientes</span>
+                <Link href="/ventas" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground">
+                  Ver todas →
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Cliente / Productos</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentSales.map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell className="text-muted-foreground text-[12px] align-top">{formatDate(s.createdAt)}</TableCell>
+                      <TableCell>
+                        <Link className="font-medium hover:underline" href={`/clientes/${s.clientId}`}>
+                          {s.client.firstName} {s.client.lastName}
+                        </Link>
+                        <div className="text-[11px] text-muted-foreground line-clamp-2">
+                          {s.items.map((it) => `${it.quantity}× ${it.product.name}`).join(", ")}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-mono align-top">{formatUSD(Number(s.total))}</TableCell>
+                    </TableRow>
+                  ))}
+                  {recentSales.length === 0 && (
+                    <TableRow><TableCell colSpan={3} className="py-8 text-center text-muted-foreground">Sin ventas aún</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </section>
       </div>
     </>
   );
