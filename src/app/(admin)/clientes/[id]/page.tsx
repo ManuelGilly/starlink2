@@ -7,13 +7,14 @@ import { formatUSD, formatDate } from "@/lib/utils";
 import { Topbar } from "@/components/layout/topbar";
 import { AssignPlanForm } from "./assign-plan";
 import { EditClientForm } from "./edit-form";
+import { RegisterSaleForm } from "./sale-form";
 import { DeleteButton } from "@/components/delete-button";
 import { getCurrentUser } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export default async function ClienteDetalle({ params }: { params: { id: string } }) {
-  const [client, plans, user] = await Promise.all([
+  const [client, plans, products, user] = await Promise.all([
     prisma.client.findUnique({
       where: { id: params.id },
       include: {
@@ -24,6 +25,7 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
       },
     }),
     prisma.plan.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
+    prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     getCurrentUser(),
   ]);
   if (!client) notFound();
@@ -163,6 +165,45 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
                 )}
               </TableBody>
             </Table>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Compras de productos</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Productos</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead>Notas</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {client.sales.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>{formatDate(s.createdAt)}</TableCell>
+                    <TableCell className="text-sm">
+                      {s.items.map((it) => (
+                        <div key={it.id}>
+                          {it.quantity}× {it.product.name} <span className="text-muted-foreground">({formatUSD(Number(it.unitPrice))})</span>
+                        </div>
+                      ))}
+                    </TableCell>
+                    <TableCell className="font-mono">{formatUSD(Number(s.total))}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{s.notes ?? "—"}</TableCell>
+                  </TableRow>
+                ))}
+                {client.sales.length === 0 && (
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Sin compras registradas</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+            <div>
+              <h3 className="mb-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">Registrar compra</h3>
+              <RegisterSaleForm clientId={client.id} products={JSON.parse(JSON.stringify(products))} />
+            </div>
           </CardContent>
         </Card>
       </div>

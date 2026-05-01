@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Topbar } from "@/components/layout/topbar";
 import { formatUSD, formatDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowDownRight, ArrowUpRight, TrendingUp, Package, Users, AlertTriangle, ShieldAlert, Clock } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, TrendingUp, Package, Users, AlertTriangle, ShieldAlert, Clock, ShoppingCart } from "lucide-react";
 import {
   MonthlyBillingChart,
   CashflowChart,
@@ -70,14 +70,28 @@ function SectionTitle({ title, hint }: { title: string; hint?: string }) {
 }
 
 export default async function DashboardPage() {
-  const [data, recentPayments] = await Promise.all([
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [data, recentPayments, recentSales, salesMonthAgg, salesCountMonth] = await Promise.all([
     getDashboardData(),
     prisma.payment.findMany({
       include: { client: true },
       orderBy: { createdAt: "desc" },
       take: 8,
     }),
+    prisma.sale.findMany({
+      include: { client: true, items: { include: { product: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+    }),
+    prisma.sale.aggregate({
+      _sum: { total: true },
+      where: { createdAt: { gte: monthStart } },
+    }),
+    prisma.sale.count({ where: { createdAt: { gte: monthStart } } }),
   ]);
+  const salesTotalMonth = Number(salesMonthAgg._sum.total ?? 0);
 
   const {
     kpis, monthly, byMethod, byStatus, byPlan, topClients, inventory, alerts,
@@ -137,6 +151,70 @@ export default async function DashboardPage() {
             <Kpi label="Inversión inventario" value={formatUSD(kpis.inventoryInvestment)} hint={`Venta: ${formatUSD(kpis.inventoryValueAtSale)}`} icon={Package} />
             <Kpi label="Stock crítico" value={String(kpis.lowStockCount)} tone={kpis.lowStockCount > 0 ? "danger" : "positive"} icon={AlertTriangle} />
           </div>
+        </section>
+
+        {/* ---- Ventas ---- */}
+        <section>
+          <SectionTitle title="Ventas" hint="Productos" />
+          <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Kpi
+              label="Ventas mes"
+              value={formatUSD(salesTotalMonth)}
+              hint={`${salesCountMonth} ${salesCountMonth === 1 ? "venta" : "ventas"}`}
+              tone="positive"
+              icon={ShoppingCart}
+            />
+            <Kpi
+              label="Ticket promedio venta"
+              value={formatUSD(salesCountMonth > 0 ? salesTotalMonth / salesCountMonth : 0)}
+              icon={TrendingUp}
+            />
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Ventas recientes</span>
+                <Link href="/ventas" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground">
+                  Ver todas →
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Productos</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentSales.map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell className="text-muted-foreground">{formatDate(s.createdAt)}</TableCell>
+                      <TableCell className="font-medium">
+                        <Link className="hover:underline" href={`/clientes/${s.clientId}`}>
+                          {s.client.firstName} {s.client.lastName}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="text-[12px] text-muted-foreground">
+                        {s.items.map((it) => `${it.quantity}× ${it.product.name}`).join(", ")}
+                      </TableCell>
+                      <TableCell className="text-right font-mono">{formatUSD(Number(s.total))}</TableCell>
+                    </TableRow>
+                  ))}
+                  {recentSales.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                        Sin ventas aún
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </section>
 
         {/* ---- Gráficos financieros ---- */}
