@@ -98,4 +98,22 @@ export async function sendFromTemplate(params: {
   });
 }
 
+export async function sendToAdmin(params: {
+  templateCode: string;
+  vars: Record<string, string | number | null | undefined>;
+  relatedType?: string;
+  relatedId?: string;
+}) {
+  const adminChat = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!adminChat) return null;
+  return sendFromTemplate({
+    templateCode: params.templateCode,
+    recipient: adminChat,
+    channelOverride: "TELEGRAM",
+    vars: params.vars,
+    relatedType: params.relatedType,
+    relatedId: params.relatedId,
+  });
+}
+
 export { channels };

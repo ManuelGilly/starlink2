@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { ADMIN_OR_INV, requireRole } from "@/lib/rbac";
 import { audit, getRequestInfo } from "@/lib/audit";
 import { stockForProduct } from "@/lib/inventory/stock";
+import { sendFromTemplate, sendToAdmin } from "@/lib/notifications";
+import { formatUSD } from "@/lib/utils";
 
 const itemSchema = z.object({
   productId: z.string().min(1),
@@ -147,6 +149,42 @@ export async function POST(req: Request) {
 
   const { ip, userAgent } = getRequestInfo(req);
   await audit({ userId: user?.id, action: "CREATE", entity: "Sale", entityId: sale.id, after: sale, ipAddress: ip, userAgent });
+
+  const itemsList = itemsResolved
+    .map((it) => {
+      const p = products.find((pp) => pp.id === it.productId);
+      return `${it.quantity}x ${p?.name ?? it.productId}`;
+    })
+    .join(", ");
+  const dateStr = eventDate.toLocaleDateString("es-VE");
+  const totalStr = formatUSD(total);
+  const clientName = `${client.firstName} ${client.lastName}`;
+
+  if (client.telegramChatId) {
+    try {
+      await sendFromTemplate({
+        templateCode: "SALE_REGISTERED_CLIENT",
+        recipient: client.telegramChatId,
+        channelOverride: "TELEGRAM",
+        vars: { firstName: client.firstName, itemsList, total: totalStr, date: dateStr },
+        relatedType: "Sale",
+        relatedId: sale.id,
+      });
+    } catch (e) {
+      console.error("[notif] SALE_REGISTERED_CLIENT falló:", e);
+    }
+  }
+
+  try {
+    await sendToAdmin({
+      templateCode: "SALE_REGISTERED_ADMIN",
+      vars: { clientName, total: totalStr, itemsList, date: dateStr },
+      relatedType: "Sale",
+      relatedId: sale.id,
+    });
+  } catch (e) {
+    console.error("[notif] SALE_REGISTERED_ADMIN falló:", e);
+  }
 
   return NextResponse.json(sale, { status: 201 });
 }

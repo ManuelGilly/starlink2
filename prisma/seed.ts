@@ -1,5 +1,6 @@
 import { PrismaClient, RoleName, NotificationChannelType } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { notificationTemplates } from "../src/lib/notifications/seed-templates";
 
 const prisma = new PrismaClient();
 
@@ -59,52 +60,15 @@ async function main() {
   }
   console.log("✓ Canales de notificación creados (deshabilitados)");
 
-  // Plantillas base
-  const templates = [
-    {
-      code: "NEW_USER_PASSWORD",
-      name: "Credenciales de acceso para nuevo usuario",
-      subject: "Tus credenciales de acceso — Starlink Venezuela",
-      body: "Hola {{name}}, tu cuenta ha sido creada. Email: {{email}}. Contraseña temporal: {{password}}. Debes cambiarla al iniciar sesión. URL: {{loginUrl}}",
-      channelType: "EMAIL" as NotificationChannelType,
-    },
-    {
-      code: "PAYMENT_REMINDER",
-      name: "Recordatorio de cobro mensual",
-      subject: "Recordatorio de pago — Starlink Venezuela",
-      body: "Hola {{clientName}}, te recordamos tu pago del plan {{planName}} por {{amount}} USD con fecha de corte {{dueDate}}. Reporta tu pago en {{portalUrl}}.",
-      channelType: "WHATSAPP" as NotificationChannelType,
-    },
-    {
-      code: "PAYMENT_CONFIRMED",
-      name: "Pago confirmado",
-      subject: "Pago confirmado — Starlink Venezuela",
-      body: "Hola {{clientName}}, tu pago de {{amount}} USD fue confirmado. Gracias.",
-      channelType: "WHATSAPP" as NotificationChannelType,
-    },
-    {
-      code: "STOCK_DEFICIT",
-      name: "Alerta de déficit de inventario",
-      subject: "Alerta: stock proyectado bajo",
-      body: "Producto {{productName}} (SKU {{sku}}): stock actual {{currentStock}}, proyección en {{days}} días = {{projectedStock}}. Mínimo {{minStock}}.",
-      channelType: "EMAIL" as NotificationChannelType,
-    },
-    {
-      code: "WARRANTY_EXPIRING",
-      name: "Garantía por vencer",
-      subject: "Tu garantía vence pronto",
-      body: "Hola {{clientName}}, tu garantía del producto {{productName}} vence el {{endsAt}}.",
-      channelType: "EMAIL" as NotificationChannelType,
-    },
-  ];
-  for (const t of templates) {
+  // Plantillas base (lista compartida en src/lib/notifications/seed-templates.ts)
+  for (const t of notificationTemplates) {
     await prisma.notificationTemplate.upsert({
       where: { code: t.code },
       update: { name: t.name, subject: t.subject, body: t.body, channelType: t.channelType },
       create: t,
     });
   }
-  console.log("✓ Plantillas de notificación creadas");
+  console.log(`✓ Plantillas de notificación creadas (${notificationTemplates.length})`);
 
   // Categoría de producto ejemplo
   await prisma.productCategory.upsert({

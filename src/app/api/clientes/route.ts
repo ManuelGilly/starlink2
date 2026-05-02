@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { ADMIN_OR_INV, requireRole } from "@/lib/rbac";
 import { audit, getRequestInfo } from "@/lib/audit";
+import { sendFromTemplate } from "@/lib/notifications";
 
 const schema = z.object({
   firstName: z.string().min(1),
@@ -35,5 +36,21 @@ export async function POST(req: Request) {
   const created = await prisma.client.create({ data: parsed.data });
   const { ip, userAgent } = getRequestInfo(req);
   await audit({ userId: user?.id, action: "CREATE", entity: "Client", entityId: created.id, after: created, ipAddress: ip, userAgent });
+
+  if (created.telegramChatId) {
+    try {
+      await sendFromTemplate({
+        templateCode: "WELCOME_CLIENT",
+        recipient: created.telegramChatId,
+        channelOverride: "TELEGRAM",
+        vars: { firstName: created.firstName },
+        relatedType: "Client",
+        relatedId: created.id,
+      });
+    } catch (e) {
+      console.error("[notif] WELCOME_CLIENT falló:", e);
+    }
+  }
+
   return NextResponse.json(created, { status: 201 });
 }
