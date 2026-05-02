@@ -43,6 +43,7 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
               <div><strong>Email:</strong> {client.email}</div>
               <div><strong>Teléfono:</strong> {client.phone}</div>
               <div><strong>Dirección:</strong> {client.address ?? "—"}</div>
+              <div><strong>Telegram:</strong> {client.telegramChatId ?? "—"}</div>
               {client.notes && <div className="col-span-2"><strong>Notas:</strong> {client.notes}</div>}
             </CardContent>
           </Card>

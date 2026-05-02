@@ -69,6 +69,7 @@ model Client {
   phone       String
   address     String?
   notes       String?
+  telegramChatId String? @unique
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -19,6 +19,7 @@ export default function NuevoClientePage() {
     phone: "",
     address: "",
     notes: "",
+    telegramChatId: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -50,6 +51,7 @@ export default function NuevoClientePage() {
               <div><Label>Email</Label><Input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
               <div><Label>Teléfono</Label><Input required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+58 414 1234567" /></div>
               <div><Label>Dirección</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+              <div className="col-span-2"><Label>Telegram Chat ID <span className="text-xs text-muted-foreground">(opcional)</span></Label><Input value={form.telegramChatId} onChange={(e) => setForm({ ...form, telegramChatId: e.target.value })} placeholder="123456789 — el cliente lo obtiene escribiéndole a @userinfobot" /></div>
             </div>
             <div><Label>Notas</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
             <Button disabled={loading}>{loading ? "Guardando…" : "Guardar"}</Button>

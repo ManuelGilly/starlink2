@@ -18,6 +18,7 @@ export function EditClientForm({ client }: { client: any }) {
     phone: client.phone,
     address: client.address ?? "",
     notes: client.notes ?? "",
+    telegramChatId: client.telegramChatId ?? "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +45,7 @@ export function EditClientForm({ client }: { client: any }) {
         <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
         <div><Label>Teléfono</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
         <div><Label>Dirección</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+        <div className="col-span-2"><Label>Telegram Chat ID <span className="text-xs text-muted-foreground">(opcional)</span></Label><Input value={form.telegramChatId} onChange={(e) => setForm({ ...form, telegramChatId: e.target.value })} placeholder="123456789" /></div>
       </div>
       <div><Label>Notas</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
       <Button disabled={loading}>{loading ? "Guardando…" : "Guardar cambios"}</Button>

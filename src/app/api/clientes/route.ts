@@ -12,6 +12,7 @@ const schema = z.object({
   phone: z.string().min(1),
   address: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
+  telegramChatId: z.string().optional().nullable().transform((v) => v || null),
   userId: z.string().optional().nullable(),
 });
 
