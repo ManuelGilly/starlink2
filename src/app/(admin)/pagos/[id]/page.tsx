@@ -5,19 +5,26 @@ import { Topbar } from "@/components/layout/topbar";
 import { Badge } from "@/components/ui/badge";
 import { formatUSD, formatDateTime } from "@/lib/utils";
 import { EditPaymentForm } from "./edit-form";
+import { DeleteButton } from "@/components/delete-button";
+import { getCurrentUser, hasRole } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export default async function PagoDetallePage({ params }: { params: { id: string } }) {
-  const payment = await prisma.payment.findUnique({
-    where: { id: params.id },
-    include: {
-      client: true,
-      subscription: { include: { plan: true } },
-      report: true,
-    },
-  });
+  const [payment, user] = await Promise.all([
+    prisma.payment.findUnique({
+      where: { id: params.id },
+      include: {
+        client: true,
+        subscription: { include: { plan: true } },
+        report: true,
+      },
+    }),
+    getCurrentUser(),
+  ]);
   if (!payment) notFound();
+  const isAdmin = hasRole(user?.roles, "ADMIN");
+  const canAnnul = isAdmin && payment.status !== "RECHAZADO";
 
   return (
     <>
@@ -35,7 +42,7 @@ export default async function PagoDetallePage({ params }: { params: { id: string
             <div><strong>Pagado:</strong> {formatDateTime(payment.paidAt)}</div>
             <div><strong>Confirmado:</strong> {formatDateTime(payment.confirmedAt)}</div>
             <div className="col-span-2 text-[11px] text-muted-foreground">
-              Los pagos no se pueden borrar. Si necesitas anular uno, cámbialo a estado <span className="font-mono">RECHAZADO</span>.
+              Anular un pago lo deja en estado <span className="font-mono">RECHAZADO</span>; el registro se conserva en bitácora.
             </div>
           </CardContent>
         </Card>
@@ -46,6 +53,24 @@ export default async function PagoDetallePage({ params }: { params: { id: string
             <EditPaymentForm payment={JSON.parse(JSON.stringify(payment))} />
           </CardContent>
         </Card>
+
+        {canAnnul && (
+          <Card>
+            <CardHeader><CardTitle>Anular pago</CardTitle></CardHeader>
+            <CardContent>
+              <DeleteButton
+                endpoint={`/api/pagos/${payment.id}`}
+                entityLabel="pago"
+                entityName={`${formatUSD(Number(payment.amount))} de ${payment.client.firstName} ${payment.client.lastName}`}
+                redirectTo="/pagos"
+                confirmWord="ANULAR"
+              />
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                El pago pasará a estado <span className="font-mono">RECHAZADO</span>. No se borra de la base; queda registrado en bitácora.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </>
   );

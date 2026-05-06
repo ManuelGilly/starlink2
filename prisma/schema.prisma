@@ -27,14 +27,28 @@ model User {
   mustChangePassword Boolean  @default(true)
   active            Boolean   @default(true)
   lastLoginAt       DateTime?
+  telegramChatId    String?   @unique
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  roles    UserRole[]
-  client   Client?
-  auditLogs AuditLog[]
+  roles          UserRole[]
+  client         Client?
+  auditLogs      AuditLog[]
+  twoFactorCodes TwoFactorCode[]
 
   @@index([email])
+}
+
+model TwoFactorCode {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, expiresAt])
 }
 
 model Role {
@@ -65,7 +79,6 @@ model Client {
 
   firstName   String
   lastName    String
-  documentId  String?  @unique // Cédula / RIF
   email       String
   phone       String
   address     String?

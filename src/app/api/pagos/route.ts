@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, hasRole, requireRole } from "@/lib/rbac";
 import { audit, getRequestInfo } from "@/lib/audit";
+import { notifyPaymentConfirmed } from "@/lib/payments";
 
 const schema = z.object({
   clientId: z.string().min(1),
@@ -51,10 +52,15 @@ export async function POST(req: Request) {
       confirmedAt: status === "CONFIRMADO" ? new Date() : null,
       confirmedBy: status === "CONFIRMADO" ? user.id : null,
     },
+    include: { client: true },
   });
 
   const { ip, userAgent } = getRequestInfo(req);
   await audit({ userId: user.id, action: "CREATE", entity: "Payment", entityId: created.id, after: created, ipAddress: ip, userAgent });
+
+  if (status === "CONFIRMADO") {
+    await notifyPaymentConfirmed(created, created.client);
+  }
 
   return NextResponse.json(created, { status: 201 });
 }

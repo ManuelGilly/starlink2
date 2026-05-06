@@ -13,7 +13,6 @@ export function EditClientForm({ client }: { client: any }) {
   const [form, setForm] = useState({
     firstName: client.firstName,
     lastName: client.lastName,
-    documentId: client.documentId ?? "",
     email: client.email,
     phone: client.phone,
     address: client.address ?? "",
@@ -41,7 +40,6 @@ export function EditClientForm({ client }: { client: any }) {
       <div className="grid grid-cols-2 gap-3">
         <div><Label>Nombre</Label><Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} /></div>
         <div><Label>Apellido</Label><Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} /></div>
-        <div><Label>Cédula / RIF</Label><Input value={form.documentId} onChange={(e) => setForm({ ...form, documentId: e.target.value })} /></div>
         <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
         <div><Label>Teléfono</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
         <div><Label>Dirección</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>

@@ -7,7 +7,6 @@ import { audit, getRequestInfo } from "@/lib/audit";
 const schema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
-  documentId: z.string().nullable().optional(),
   email: z.string().email().optional(),
   phone: z.string().min(1).optional(),
   address: z.string().nullable().optional(),

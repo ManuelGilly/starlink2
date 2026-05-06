@@ -2,14 +2,18 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Topbar } from "@/components/layout/topbar";
 import { formatDateTime, formatUSD } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PaymentActions } from "./actions";
+import { getCurrentUser, hasRole } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export default async function PagosPage() {
+  const user = await getCurrentUser();
+  const isAdmin = hasRole(user?.roles, "ADMIN");
   const [pending, confirmed] = await Promise.all([
     prisma.payment.findMany({
       where: { status: { in: ["REPORTADO", "PENDIENTE"] } },
@@ -28,6 +32,11 @@ export default async function PagosPage() {
     <>
       <Topbar title="Pagos" />
       <div className="p-6 space-y-4">
+        {isAdmin && (
+          <div className="flex justify-end">
+            <Link href="/pagos/nuevo"><Button>+ Nuevo pago</Button></Link>
+          </div>
+        )}
         <Card>
           <CardHeader><CardTitle>Por revisar ({pending.length})</CardTitle></CardHeader>
           <CardContent>

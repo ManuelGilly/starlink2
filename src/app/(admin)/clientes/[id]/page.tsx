@@ -39,7 +39,6 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
           <Card className="lg:col-span-2">
             <CardHeader><CardTitle>Datos de contacto</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-2 gap-3 text-sm">
-              <div><strong>Documento:</strong> {client.documentId ?? "—"}</div>
               <div><strong>Email:</strong> {client.email}</div>
               <div><strong>Teléfono:</strong> {client.phone}</div>
               <div><strong>Dirección:</strong> {client.address ?? "—"}</div>

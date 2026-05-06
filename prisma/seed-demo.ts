@@ -92,20 +92,19 @@ async function main() {
 
   // Clientes
   const clientsData = [
-    { firstName: "María",   lastName: "González",   documentId: "V-12345678", email: "maria.gonzalez@demo.ve",   phone: "+584141234567", address: "Caracas, Av. Francisco de Miranda, Edif. X" },
-    { firstName: "Carlos",  lastName: "Rodríguez",  documentId: "V-23456789", email: "carlos.rodriguez@demo.ve", phone: "+584242345678", address: "Valencia, Urb. La Viña" },
-    { firstName: "Ana",     lastName: "Pérez",      documentId: "V-34567890", email: "ana.perez@demo.ve",        phone: "+584143456789", address: "Maracaibo, Av. 4 Bella Vista" },
-    { firstName: "Luis",    lastName: "Martínez",   documentId: "V-45678901", email: "luis.martinez@demo.ve",    phone: "+584164567890", address: "Mérida, Urb. Santa María Norte" },
-    { firstName: "Patricia", lastName: "Hernández", documentId: "V-56789012", email: "patricia.h@demo.ve",       phone: "+584125678901", address: "Barquisimeto, Zona Este" },
-    { firstName: "Ricardo", lastName: "López",      documentId: "J-30123456-7", email: "ricardo@empresa.demo.ve", phone: "+584246789012", address: "Caracas, Centro Empresarial" },
+    { firstName: "María",   lastName: "González",   email: "maria.gonzalez@demo.ve",   phone: "+584141234567", address: "Caracas, Av. Francisco de Miranda, Edif. X" },
+    { firstName: "Carlos",  lastName: "Rodríguez",  email: "carlos.rodriguez@demo.ve", phone: "+584242345678", address: "Valencia, Urb. La Viña" },
+    { firstName: "Ana",     lastName: "Pérez",      email: "ana.perez@demo.ve",        phone: "+584143456789", address: "Maracaibo, Av. 4 Bella Vista" },
+    { firstName: "Luis",    lastName: "Martínez",   email: "luis.martinez@demo.ve",    phone: "+584164567890", address: "Mérida, Urb. Santa María Norte" },
+    { firstName: "Patricia", lastName: "Hernández", email: "patricia.h@demo.ve",       phone: "+584125678901", address: "Barquisimeto, Zona Este" },
+    { firstName: "Ricardo", lastName: "López",      email: "ricardo@empresa.demo.ve", phone: "+584246789012", address: "Caracas, Centro Empresarial" },
   ];
   const clientRows = [] as any[];
   for (const c of clientsData) {
-    const row = await prisma.client.upsert({
-      where: { documentId: c.documentId },
-      update: {},
-      create: c,
-    });
+    const existing = await prisma.client.findFirst({ where: { email: c.email } });
+    const row = existing
+      ? existing
+      : await prisma.client.create({ data: c });
     clientRows.push(row);
   }
   console.log(`✓ ${clientRows.length} clientes`);

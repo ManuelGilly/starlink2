@@ -8,7 +8,6 @@ import { sendFromTemplate } from "@/lib/notifications";
 const schema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
-  documentId: z.string().optional().nullable(),
   email: z.string().email(),
   phone: z.string().min(1),
   address: z.string().optional().nullable(),

@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, requireRole } from "@/lib/rbac";
-import { sendFromTemplate } from "@/lib/notifications";
-import { formatUSD } from "@/lib/utils";
 import { audit, getRequestInfo } from "@/lib/audit";
+import { notifyPaymentConfirmed } from "@/lib/payments";
 
 const schema = z.object({
   amount: z.coerce.number().positive().optional(),
@@ -76,28 +75,44 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
   // Notificar por WhatsApp al cliente si pasó a CONFIRMADO
   if (parsed.data.status === "CONFIRMADO" && before.status !== "CONFIRMADO" && updated.client) {
-    try {
-      await sendFromTemplate({
-        templateCode: "PAYMENT_CONFIRMED",
-        recipient: updated.client.phone,
-        vars: { clientName: updated.client.firstName, amount: formatUSD(Number(updated.amount)) },
-        channelOverride: "WHATSAPP",
-        relatedType: "Payment",
-        relatedId: updated.id,
-      });
-    } catch (e) {
-      console.error("Fallo notificación pago confirmado:", e);
-    }
+    await notifyPaymentConfirmed(updated, updated.client);
   }
 
   return NextResponse.json(updated);
 }
 
-// DELETE explícitamente NO permitido: los pagos son registros financieros inmutables.
-// Si necesitas anular un pago, usa el estado RECHAZADO vía PATCH.
-export async function DELETE() {
-  return NextResponse.json(
-    { error: "Los pagos no se pueden borrar. Usa el estado RECHAZADO si necesitas anularlo." },
-    { status: 405 },
-  );
+// DELETE = anular el pago (status RECHAZADO). No hard-delete: preserva auditoría.
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const { error, user } = await requireRole("ADMIN");
+  if (error) return error;
+
+  const before = await prisma.payment.findUnique({ where: { id: params.id } });
+  if (!before) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+  if (before.status === "RECHAZADO") {
+    return NextResponse.json({ error: "El pago ya está anulado" }, { status: 409 });
+  }
+
+  const updated = await prisma.payment.update({
+    where: { id: params.id },
+    data: {
+      status: "RECHAZADO",
+      confirmedAt: null,
+      confirmedBy: null,
+      notes: before.notes ? `${before.notes}\n[Anulado por admin]` : "[Anulado por admin]",
+    },
+  });
+
+  const { ip, userAgent } = getRequestInfo(req);
+  await audit({
+    userId: user?.id,
+    action: "DELETE",
+    entity: "Payment",
+    entityId: updated.id,
+    before,
+    after: updated,
+    ipAddress: ip,
+    userAgent,
+  });
+
+  return NextResponse.json({ ok: true });
 }

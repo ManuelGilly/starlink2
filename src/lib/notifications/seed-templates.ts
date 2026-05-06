@@ -79,4 +79,11 @@ export const notificationTemplates: TemplateSeed[] = [
     body: "Nueva suscripción activada\nCliente: {{clientName}}\nPlan: {{planName}}\nPrecio: {{amount}} USD\nDía de corte: {{billingDay}}",
     channelType: "TELEGRAM",
   },
+  {
+    code: "ADMIN_2FA_CODE",
+    name: "Código 2FA admin (Telegram)",
+    subject: null,
+    body: "<b>Código de acceso Starlink VE</b>\n\nTu código es: <code>{{code}}</code>\n\nVence en 5 minutos. Si no fuiste vos, alguien intentó iniciar sesión con tus credenciales.",
+    channelType: "TELEGRAM",
+  },
 ];

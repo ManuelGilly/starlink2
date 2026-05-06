@@ -28,7 +28,6 @@ export default async function ClientesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nombre</TableHead>
-                  <TableHead>Documento</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Teléfono</TableHead>
                   <TableHead>Planes activos</TableHead>
@@ -42,7 +41,6 @@ export default async function ClientesPage() {
                         {c.firstName} {c.lastName}
                       </Link>
                     </TableCell>
-                    <TableCell>{c.documentId ?? "—"}</TableCell>
                     <TableCell>{c.email}</TableCell>
                     <TableCell>{c.phone}</TableCell>
                     <TableCell className="space-x-1">
@@ -54,7 +52,7 @@ export default async function ClientesPage() {
                   </TableRow>
                 ))}
                 {clients.length === 0 && (
-                  <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Sin clientes aún</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Sin clientes aún</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-type Client = { id: string; firstName: string; lastName: string; documentId: string | null };
+type Client = { id: string; firstName: string; lastName: string };
 type Product = { id: string; sku: string; name: string; salePrice: number | string; warrantyDays: number };
 type Item = { productId: string; quantity: number; unitPrice: string };
 
@@ -108,7 +108,7 @@ export function NewSaleForm({ clients, products }: { clients: Client[]; products
           >
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.firstName} {c.lastName}{c.documentId ? ` — ${c.documentId}` : ""}
+                {c.firstName} {c.lastName}
               </option>
             ))}
           </select>
