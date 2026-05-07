@@ -194,8 +194,8 @@ export default async function Home() {
               <div className="float-slow relative aspect-[4/5] overflow-hidden rounded-3xl border border-border bg-card shadow-[0_30px_80px_-20px_hsl(var(--primary)/0.45)] glow-ring image-grain">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=900&q=80&auto=format&fit=crop"
-                  alt="Persona conectada a internet trabajando desde una zona remota"
+                  src="https://loremflickr.com/720/900/merida,andes,venezuela?lock=11"
+                  alt="Paisaje de Mérida y los Andes venezolanos conectados por Starlink"
                   loading="eager"
                   className="h-full w-full object-cover"
                 />
@@ -206,7 +206,7 @@ export default async function Home() {
                 <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/20 bg-black/40 px-3 py-1.5 backdrop-blur-md">
                   <span className="signal-pulse h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
                   <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-white">
-                    Conectado · 187 Mbps
+                    Mérida, VE · 187 Mbps
                   </span>
                 </div>
 
@@ -307,12 +307,12 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ============ PERSONAS CONECTADAS ============ */}
+      {/* ============ TODA VENEZUELA CONECTADA ============ */}
       <section id="historias" className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 radial-glow-bottom" />
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="mb-12 max-w-2xl">
-            <div className="eyebrow">Personas reales conectadas</div>
+            <div className="eyebrow">Toda Venezuela conectada</div>
             <h2 className="mt-2 font-display text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
               Donde antes no había señal,{" "}
               <span className="text-shimmer bg-gradient-to-r from-primary via-purple-500 to-primary bg-clip-text text-transparent">
@@ -320,17 +320,17 @@ export default async function Home() {
               </span>
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-              Familias, profesionales y empresas en todo el país que dejaron de depender de la geografía para acceder a internet.
+              De los Andes a la Gran Sabana, de Los Roques a los Llanos. Familias, profesionales y empresas que dejaron de depender de la geografía para conectarse.
             </p>
           </div>
 
           <div className="stagger grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
-            {/* Card 1: Big — Trabajo remoto */}
+            {/* Card 1: Big — Gran Sabana / Roraima */}
             <div className="group relative hover-lift aspect-[4/5] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-5 lg:row-span-2 lg:aspect-auto">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=900&q=80&auto=format&fit=crop"
-                alt="Profesional trabajando remotamente con conexión satelital"
+                src="https://loremflickr.com/900/1200/roraima,gran-sabana,venezuela?lock=21"
+                alt="Tepui Roraima en la Gran Sabana, Venezuela"
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
@@ -338,78 +338,82 @@ export default async function Home() {
               <div className="absolute inset-x-0 bottom-0 p-6">
                 <div className="flex items-center gap-2">
                   <span className="signal-pulse h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
-                  <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/85">En vivo</span>
+                  <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/85">Gran Sabana · Bolívar</span>
                 </div>
                 <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                  Trabajo remoto sin límites
+                  La Gran Sabana, en línea.
                 </h3>
                 <p className="mt-2 text-[13.5px] leading-relaxed text-white/80">
-                  Profesionales y emprendedores conectados desde donde antes era imposible. Videollamadas, archivos pesados, gaming — sin cortes.
+                  Comunidades, posadas y operaciones turísticas en el sur del país conectadas a la red satelital. Donde antes el silencio era total.
                 </p>
               </div>
             </div>
 
-            {/* Card 2: Familia */}
+            {/* Card 2: Mérida / Andes */}
             <div className="group relative hover-lift aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80&auto=format&fit=crop"
-                alt="Familia conectada por videollamada"
+                src="https://loremflickr.com/800/600/merida,andes,venezuela?lock=14"
+                alt="Andes venezolanos en Mérida"
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5">
-                <h3 className="font-display text-lg font-semibold tracking-tight text-white">Familias unidas</h3>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Videollamadas en HD desde fincas y zonas rurales.</p>
+                <div className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/70">Mérida · Andes</div>
+                <h3 className="mt-1 font-display text-lg font-semibold tracking-tight text-white">Pueblos de altura</h3>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Páramos y zonas de difícil acceso, ahora con video en HD.</p>
               </div>
             </div>
 
-            {/* Card 3: Empresa */}
+            {/* Card 3: Los Roques */}
             <div className="group relative hover-lift aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://images.unsplash.com/photo-1573164713988-8665fc963095?w=600&q=80&auto=format&fit=crop"
-                alt="Empresa con red satelital corporativa"
+                src="https://loremflickr.com/600/450/los-roques,venezuela,playa?lock=33"
+                alt="Archipiélago Los Roques, Venezuela"
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5">
-                <h3 className="font-display text-lg font-semibold tracking-tight text-white">Empresas</h3>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Operaciones críticas siempre online.</p>
+                <div className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/70">Los Roques</div>
+                <h3 className="mt-1 font-display text-lg font-semibold tracking-tight text-white">Caribe conectado</h3>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Posadas y embarcaciones en el archipiélago.</p>
               </div>
             </div>
 
-            {/* Card 4: Outdoor / Agro */}
+            {/* Card 4: Llanos */}
             <div className="group relative hover-lift aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=800&q=80&auto=format&fit=crop"
-                alt="Persona conectada en zona rural"
+                src="https://loremflickr.com/800/600/llanos,venezuela,apure?lock=42"
+                alt="Llanos venezolanos al atardecer"
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5">
-                <h3 className="font-display text-lg font-semibold tracking-tight text-white">Donde no llega la fibra</h3>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Montañas, costas, llanos, selva.</p>
+                <div className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/70">Llanos · Apure · Guárico</div>
+                <h3 className="mt-1 font-display text-lg font-semibold tracking-tight text-white">Hatos y agroindustria</h3>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Producción y monitoreo desde el llano abierto.</p>
               </div>
             </div>
 
-            {/* Card 5: Estudio / Educación */}
+            {/* Card 5: Caracas / ciudades */}
             <div className="group relative hover-lift aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80&auto=format&fit=crop"
-                alt="Estudiantes conectados a clases en línea"
+                src="https://loremflickr.com/600/450/caracas,venezuela,ciudad?lock=55"
+                alt="Caracas, capital de Venezuela"
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5">
-                <h3 className="font-display text-lg font-semibold tracking-tight text-white">Educación</h3>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Acceso a clases y plataformas online.</p>
+                <div className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/70">Caracas · Valencia · Maracaibo</div>
+                <h3 className="mt-1 font-display text-lg font-semibold tracking-tight text-white">Ciudades</h3>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Empresas, oficinas y comercios sin caídas.</p>
               </div>
             </div>
           </div>
