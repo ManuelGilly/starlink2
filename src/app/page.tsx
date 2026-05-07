@@ -192,78 +192,21 @@ export default async function Home() {
             {/* RIGHT: Hero image with overlay */}
             <div className="animate-fade-up-delay-3 relative mx-auto w-full max-w-[480px] lg:max-w-none">
               <div className="float-slow relative aspect-[4/5] overflow-hidden rounded-3xl border border-border bg-card shadow-[0_30px_80px_-20px_hsl(var(--primary)/0.45)] glow-ring image-grain">
-                {/* COLLAGE GRID — gente conectada a internet */}
-                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-1.5 p-1.5">
-                  {/* Tile principal — Trabajo remoto */}
-                  <div className="group/tile relative col-span-2 row-span-2 overflow-hidden rounded-2xl bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://loremflickr.com/640/640/remote-work,laptop?lock=101"
-                      alt="Persona trabajando remotamente con laptop"
-                      loading="eager"
-                      className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover/tile:scale-110"
-                    />
-                  </div>
-                  {/* Gaming */}
-                  <div className="group/tile relative overflow-hidden rounded-2xl bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://loremflickr.com/320/320/gamer,gaming?lock=102"
-                      alt="Persona jugando online conectada a internet"
-                      loading="eager"
-                      className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover/tile:scale-110"
-                    />
-                  </div>
-                  {/* Familia videollamada */}
-                  <div className="group/tile relative overflow-hidden rounded-2xl bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://loremflickr.com/320/320/family,videocall?lock=105"
-                      alt="Familia en videollamada"
-                      loading="eager"
-                      className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover/tile:scale-110"
-                    />
-                  </div>
-                  {/* Oficina */}
-                  <div className="group/tile relative overflow-hidden rounded-2xl bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://loremflickr.com/320/320/office,team,coworking?lock=103"
-                      alt="Equipo trabajando en oficina conectada"
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover/tile:scale-110"
-                    />
-                  </div>
-                  {/* Celular en carretera */}
-                  <div className="group/tile relative overflow-hidden rounded-2xl bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://loremflickr.com/320/320/smartphone,car,driver?lock=104"
-                      alt="Persona usando celular en carretera"
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover/tile:scale-110"
-                    />
-                  </div>
-                  {/* Usuario móvil */}
-                  <div className="group/tile relative overflow-hidden rounded-2xl bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://loremflickr.com/320/320/internet,user,phone?lock=106"
-                      alt="Persona conectada por celular"
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover/tile:scale-110"
-                    />
-                  </div>
-                </div>
-
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://loremflickr.com/720/900/starlink,antenna,field?lock=77"
+                  alt="Antena Starlink dando servicio en el campo"
+                  loading="eager"
+                  className="h-full w-full object-cover"
+                />
                 <div className="vignette absolute inset-0" />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-background via-background/60 to-transparent" />
 
                 {/* Top-left: signal indicator */}
                 <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/20 bg-black/50 px-3 py-1.5 backdrop-blur-md">
                   <span className="signal-pulse h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
                   <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-white">
-                    12.400 conectados ahora
+                    Antena activa · enlace estable
                   </span>
                 </div>
 
