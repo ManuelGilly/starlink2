@@ -75,7 +75,7 @@ export default async function SolicitudesActivacionPage() {
                     </TableCell>
                     <TableCell>
                       <Link
-                        href={r.receiptUrl}
+                        href={`/api/admin/receipt/${r.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[12px] text-primary hover:underline"

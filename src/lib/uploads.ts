@@ -49,7 +49,7 @@ export async function saveReceiptFile(file: File, subdir = "receipts"): Promise<
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const blob = await put(`${subdir}/${filename}`, file, {
-      access: "public",
+      access: "private",
       contentType: file.type,
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
