@@ -116,19 +116,26 @@ export default async function Home() {
             Instalación profesional en minutos. Soporte local en Venezuela.
           </p>
 
-          <div className="animate-fade-up-delay-3 mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link href={portalHref} className="w-full sm:w-auto">
-              <Button className="group h-12 w-full px-6 text-[13px] sm:w-auto">
-                {portalLabel}
+          <div className="animate-fade-up-delay-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Link href="/solicitud-activacion" className="w-full sm:w-auto">
+              <Button className="group h-[3.25rem] w-full px-7 text-[14px] font-semibold sm:w-auto">
+                Contratar un plan y pagar mensualidad
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
             </Link>
             <a href={waInfo} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-              <Button variant="outline" className="h-12 w-full gap-2 border-emerald-500/40 px-6 text-[13px] text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 sm:w-auto">
-                <MessageCircle className="h-4 w-4" />
+              <Button
+                className="group h-[3.25rem] w-full gap-2 bg-emerald-500 px-7 text-[14px] font-semibold text-white shadow-[0_0_24px_-6px_rgba(16,185,129,0.55)] hover:bg-emerald-600 hover:shadow-[0_0_32px_-4px_rgba(16,185,129,0.7)] sm:w-auto"
+              >
+                <MessageCircle className="h-5 w-5" />
                 Contáctanos por WhatsApp
               </Button>
             </a>
+            <Link href={portalHref} className="w-full sm:w-auto">
+              <Button variant="outline" className="h-[3.25rem] w-full px-7 text-[14px] sm:w-auto">
+                {portalLabel}
+              </Button>
+            </Link>
           </div>
 
           {/* Stats bar */}
