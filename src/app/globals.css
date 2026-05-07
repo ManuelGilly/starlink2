@@ -268,11 +268,117 @@
   animation: border-shimmer 8s ease-in-out infinite;
 }
 
+/* Twinkling stars layer */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.stars {
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%, hsl(var(--primary) / 0.9), transparent 50%),
+    radial-gradient(1px 1px at 60% 70%, hsl(var(--foreground) / 0.55), transparent 50%),
+    radial-gradient(1px 1px at 50% 50%, hsl(var(--primary) / 0.7), transparent 50%),
+    radial-gradient(2px 2px at 80% 12%, hsl(var(--primary) / 0.85), transparent 50%),
+    radial-gradient(1px 1px at 90% 60%, hsl(var(--foreground) / 0.5), transparent 50%),
+    radial-gradient(1px 1px at 33% 82%, hsl(280 90% 65% / 0.7), transparent 50%),
+    radial-gradient(2px 2px at 15% 68%, hsl(280 90% 60% / 0.8), transparent 50%),
+    radial-gradient(1px 1px at 75% 45%, hsl(var(--primary) / 0.6), transparent 50%),
+    radial-gradient(1.5px 1.5px at 5% 20%, hsl(190 95% 60% / 0.7), transparent 50%);
+  background-size: 100% 100%;
+  animation: twinkle 4s ease-in-out infinite;
+}
+.stars-alt {
+  background-image:
+    radial-gradient(1px 1px at 12% 88%, hsl(var(--primary) / 0.7), transparent 50%),
+    radial-gradient(1px 1px at 68% 22%, hsl(var(--foreground) / 0.55), transparent 50%),
+    radial-gradient(2px 2px at 42% 42%, hsl(280 90% 65% / 0.6), transparent 50%),
+    radial-gradient(1px 1px at 25% 75%, hsl(var(--primary) / 0.75), transparent 50%),
+    radial-gradient(1px 1px at 92% 85%, hsl(var(--primary) / 0.5), transparent 50%),
+    radial-gradient(1.5px 1.5px at 55% 8%, hsl(190 95% 55% / 0.7), transparent 50%);
+  background-size: 100% 100%;
+  animation: twinkle 5.5s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+/* Text gradient sweep — for animated gradient titles */
+@keyframes text-shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+.text-shimmer {
+  background-size: 200% auto;
+  animation: text-shimmer 6s linear infinite;
+}
+
+/* Stagger reveal — for grids; pairs with .stagger > * */
+.stagger > * {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > *:nth-child(1)  { animation-delay: 0.00s; }
+.stagger > *:nth-child(2)  { animation-delay: 0.07s; }
+.stagger > *:nth-child(3)  { animation-delay: 0.14s; }
+.stagger > *:nth-child(4)  { animation-delay: 0.21s; }
+.stagger > *:nth-child(5)  { animation-delay: 0.28s; }
+.stagger > *:nth-child(6)  { animation-delay: 0.35s; }
+.stagger > *:nth-child(7)  { animation-delay: 0.42s; }
+.stagger > *:nth-child(8)  { animation-delay: 0.49s; }
+
+/* Lift+glow hover */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, border-color 0.3s;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 60px -22px hsl(var(--primary) / 0.45);
+}
+
+/* Soft "breathe" — gentle scale loop for accent badges */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+.breathe { animation: breathe 3.5s ease-in-out infinite; }
+
+/* Vertical beam (satellite link line) */
+@keyframes beam-down {
+  0% { transform: translateY(-100%); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+.beam-down {
+  position: absolute;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, hsl(var(--primary) / 0.85), transparent);
+  animation: beam-down 3s ease-in-out infinite;
+  pointer-events: none;
+  filter: blur(0.5px);
+}
+
+/* Caret blink for "live" feel */
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.caret-blink::after {
+  content: "▍";
+  margin-left: 2px;
+  color: hsl(var(--primary));
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+/* Tiny spinner loop for signals */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow { animation: spin-slow 14s linear infinite; }
+
 /* Reduce motion respect */
 @media (prefers-reduced-motion: reduce) {
   .aurora, .float-slow, .float-slower, .pulse-glow, .signal-pulse,
   .orbit-spin-slow, .orbit-spin-reverse, .beam-scan, .marquee-track,
-  .border-shimmer::before {
+  .border-shimmer::before, .stars, .stars-alt, .text-shimmer,
+  .stagger > *, .breathe, .beam-down, .caret-blink::after, .spin-slow {
     animation: none !important;
   }
 }

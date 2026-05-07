@@ -124,6 +124,8 @@ export default async function Home() {
       <section className="relative overflow-hidden border-b border-border">
         <div className="aurora absolute inset-0" />
         <div className="grid-bg absolute inset-0 opacity-30" />
+        <div className="stars absolute inset-0" />
+        <div className="stars-alt absolute inset-0" />
         <div className="noise absolute inset-0" />
         <div className="beam-scan" />
 
@@ -147,14 +149,14 @@ export default async function Home() {
             <div>
               <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5">
                 <span className="signal-pulse h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
-                <span className="text-[11px] font-medium uppercase tracking-[0.15em] text-primary">
+                <span className="caret-blink text-[11px] font-medium uppercase tracking-[0.15em] text-primary">
                   Red satelital activa · Venezuela
                 </span>
               </div>
               <h1 className="animate-fade-up-delay-1 mt-5 font-display text-[42px] font-semibold leading-[0.95] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
                 Internet desde el espacio.
                 <br />
-                <span className="bg-gradient-to-r from-primary via-primary to-purple-500 bg-clip-text text-transparent">
+                <span className="text-shimmer bg-gradient-to-r from-primary via-purple-500 to-primary bg-clip-text text-transparent">
                   En cualquier rincón
                 </span>{" "}
                 del país.
@@ -207,6 +209,10 @@ export default async function Home() {
                     Conectado · 187 Mbps
                   </span>
                 </div>
+
+                {/* Vertical satellite beam */}
+                <div className="beam-down absolute left-1/2 top-0 h-1/2 -translate-x-1/2" />
+                <div className="beam-down absolute left-[35%] top-0 h-2/5 -translate-x-1/2" style={{ animationDelay: "0.8s" }} />
 
                 {/* Bottom-left: tech card */}
                 <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-white/15 bg-black/45 p-4 backdrop-blur-xl">
@@ -309,7 +315,7 @@ export default async function Home() {
             <div className="eyebrow">Personas reales conectadas</div>
             <h2 className="mt-2 font-display text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
               Donde antes no había señal,{" "}
-              <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+              <span className="text-shimmer bg-gradient-to-r from-primary via-purple-500 to-primary bg-clip-text text-transparent">
                 ahora hay vida digital.
               </span>
             </h2>
@@ -318,9 +324,9 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
+          <div className="stagger grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
             {/* Card 1: Big — Trabajo remoto */}
-            <div className="group relative aspect-[4/5] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-5 lg:row-span-2 lg:aspect-auto">
+            <div className="group relative hover-lift aspect-[4/5] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-5 lg:row-span-2 lg:aspect-auto">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=900&q=80&auto=format&fit=crop"
@@ -344,7 +350,7 @@ export default async function Home() {
             </div>
 
             {/* Card 2: Familia */}
-            <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-4">
+            <div className="group relative hover-lift aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80&auto=format&fit=crop"
@@ -360,7 +366,7 @@ export default async function Home() {
             </div>
 
             {/* Card 3: Empresa */}
-            <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-3">
+            <div className="group relative hover-lift aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://images.unsplash.com/photo-1573164713988-8665fc963095?w=600&q=80&auto=format&fit=crop"
@@ -376,7 +382,7 @@ export default async function Home() {
             </div>
 
             {/* Card 4: Outdoor / Agro */}
-            <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-4">
+            <div className="group relative hover-lift aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=800&q=80&auto=format&fit=crop"
@@ -392,7 +398,7 @@ export default async function Home() {
             </div>
 
             {/* Card 5: Estudio / Educación */}
-            <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-3">
+            <div className="group relative hover-lift aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80&auto=format&fit=crop"
@@ -650,7 +656,7 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {[
               { icon: HomeIcon, label: "Residencial", sub: "Hogares y fincas" },
               { icon: Building2, label: "Empresas", sub: "Oficinas y comercios" },
@@ -663,7 +669,7 @@ export default async function Home() {
               return (
                 <div
                   key={s.label}
-                  className="group rounded-sm border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-[0_0_24px_-12px_hsl(var(--primary))]"
+                  className="hover-lift group rounded-sm border border-border bg-card p-5 transition-all hover:border-primary/40"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary/10 ring-1 ring-primary/30 transition-colors group-hover:bg-primary/15">
                     <Icon className="h-5 w-5 text-primary" />
@@ -683,7 +689,7 @@ export default async function Home() {
         <div className="grid-bg absolute inset-0 opacity-20" />
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
+            <div className="breathe inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               <span className="text-[11px] font-medium uppercase tracking-[0.15em] text-primary">Servicio premium</span>
             </div>
@@ -696,7 +702,7 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="stagger mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: Lightbulb,
@@ -733,7 +739,7 @@ export default async function Home() {
               return (
                 <div
                   key={s.title}
-                  className="group relative flex flex-col rounded-sm border border-border bg-card p-6 transition-all hover:border-primary/40 hover:shadow-[0_0_30px_-12px_hsl(var(--primary))]"
+                  className="hover-lift group relative flex flex-col rounded-sm border border-border bg-card p-6 transition-colors hover:border-primary/40"
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-primary/10 ring-1 ring-primary/30">
                     <Icon className="h-5 w-5 text-primary" />
