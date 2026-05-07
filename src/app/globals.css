@@ -136,3 +136,143 @@
 .animate-fade-up-delay-1 { animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both; }
 .animate-fade-up-delay-2 { animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both; }
 .animate-fade-up-delay-3 { animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both; }
+
+/* ============ FUTURISTIC ANIMATIONS ============ */
+
+/* Slow shifting gradient for backgrounds */
+@keyframes aurora {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.aurora {
+  background:
+    radial-gradient(circle at 15% 30%, hsl(var(--primary) / 0.22), transparent 45%),
+    radial-gradient(circle at 85% 60%, hsl(280 90% 60% / 0.18), transparent 50%),
+    radial-gradient(circle at 50% 80%, hsl(190 95% 55% / 0.15), transparent 55%);
+  background-size: 200% 200%;
+  animation: aurora 18s ease-in-out infinite;
+}
+
+/* Floating element */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+.float-slow { animation: float 6s ease-in-out infinite; }
+.float-slower { animation: float 8s ease-in-out infinite; }
+
+/* Pulse glow for primary CTAs / signal indicators */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5); }
+  50% { box-shadow: 0 0 0 10px hsl(var(--primary) / 0); }
+}
+.pulse-glow { animation: pulse-glow 2.5s ease-out infinite; }
+
+/* Soft pulse dot (signal active) */
+@keyframes signal-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.18); }
+}
+.signal-pulse { animation: signal-pulse 2s ease-in-out infinite; }
+
+/* Orbit ring spin */
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.orbit-spin-slow { animation: orbit-spin 40s linear infinite; }
+.orbit-spin-reverse { animation: orbit-spin 60s linear infinite reverse; }
+
+/* Beam scan: horizontal light sweep */
+@keyframes beam {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(110%); }
+}
+.beam-scan {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.18), transparent);
+  animation: beam 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Marquee for trust strip (continuous horizontal scroll) */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 36s linear infinite; }
+
+/* Soft glow ring around hero image */
+.glow-ring {
+  position: relative;
+}
+.glow-ring::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.7), transparent 40%, hsl(280 90% 60% / 0.6));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  padding: 1px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Subtle grain on top of images */
+.image-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Vignette overlay for hero image */
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, hsl(var(--background) / 0.55) 100%);
+  pointer-events: none;
+}
+
+/* Tech grid mask on image bottom */
+.tech-mask {
+  -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
+}
+
+/* Animated gradient border for premium cards */
+@keyframes border-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.border-shimmer {
+  position: relative;
+  background-clip: padding-box;
+}
+.border-shimmer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  margin: -1px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, hsl(var(--primary) / 0.6), transparent 30%, hsl(280 90% 60% / 0.5) 60%, transparent 80%, hsl(var(--primary) / 0.6));
+  background-size: 300% 300%;
+  animation: border-shimmer 8s ease-in-out infinite;
+}
+
+/* Reduce motion respect */
+@media (prefers-reduced-motion: reduce) {
+  .aurora, .float-slow, .float-slower, .pulse-glow, .signal-pulse,
+  .orbit-spin-slow, .orbit-spin-reverse, .beam-scan, .marquee-track,
+  .border-shimmer::before {
+    animation: none !important;
+  }
+}

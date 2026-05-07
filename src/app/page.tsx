@@ -122,46 +122,140 @@ export default async function Home() {
 
       {/* ============ HERO ============ */}
       <section className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 radial-glow" />
-        <div className="grid-bg absolute inset-0 opacity-40" />
+        <div className="aurora absolute inset-0" />
+        <div className="grid-bg absolute inset-0 opacity-30" />
         <div className="noise absolute inset-0" />
+        <div className="beam-scan" />
 
-        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:py-36">
-          <div className="animate-fade-up eyebrow">Internet satelital · Venezuela</div>
-          <h1 className="animate-fade-up-delay-1 mt-5 font-display text-[40px] font-semibold leading-[0.95] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
-            Internet desde el espacio.
-            <br />
-            <span className="text-primary">En cualquier rincón</span> del país.
-          </h1>
-          <p className="animate-fade-up-delay-2 mt-6 max-w-xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-            Velocidades de 50 a 250 Mbps por satélite. Conecta donde no llega la fibra: fincas, costas, montañas, zonas rurales y ciudades.
-            Instalación profesional en minutos. Soporte local en Venezuela.
-          </p>
+        {/* Orbit decoration */}
+        <div className="pointer-events-none absolute -right-40 top-1/2 hidden -translate-y-1/2 lg:block">
+          <div className="orbit-spin-slow relative h-[640px] w-[640px] rounded-full border border-primary/15">
+            <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
+              <div className="signal-pulse h-3 w-3 rounded-full bg-primary shadow-[0_0_24px_hsl(var(--primary))]" />
+            </div>
+          </div>
+          <div className="orbit-spin-reverse absolute inset-0 h-[640px] w-[640px] rounded-full border border-primary/10">
+            <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <div className="h-2 w-2 rounded-full bg-primary/70" />
+            </div>
+          </div>
+        </div>
 
-          <div className="animate-fade-up-delay-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Link href="/solicitud-activacion" className="w-full sm:w-auto">
-              <Button className="group h-[3.25rem] w-full px-7 text-[14px] font-semibold sm:w-auto">
-                Contratar un plan y pagar mensualidad
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Button>
-            </Link>
-            <a href={waInfo} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-              <Button
-                className="group h-[3.25rem] w-full gap-2 bg-emerald-500 px-7 text-[14px] font-semibold text-white shadow-[0_0_24px_-6px_rgba(16,185,129,0.55)] hover:bg-emerald-600 hover:shadow-[0_0_32px_-4px_rgba(16,185,129,0.7)] sm:w-auto"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Contáctanos por WhatsApp
-              </Button>
-            </a>
-            <Link href={portalHref} className="w-full sm:w-auto">
-              <Button variant="outline" className="h-[3.25rem] w-full px-7 text-[14px] sm:w-auto">
-                {portalLabel}
-              </Button>
-            </Link>
+        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
+            {/* LEFT: Text */}
+            <div>
+              <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5">
+                <span className="signal-pulse h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
+                <span className="text-[11px] font-medium uppercase tracking-[0.15em] text-primary">
+                  Red satelital activa · Venezuela
+                </span>
+              </div>
+              <h1 className="animate-fade-up-delay-1 mt-5 font-display text-[42px] font-semibold leading-[0.95] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
+                Internet desde el espacio.
+                <br />
+                <span className="bg-gradient-to-r from-primary via-primary to-purple-500 bg-clip-text text-transparent">
+                  En cualquier rincón
+                </span>{" "}
+                del país.
+              </h1>
+              <p className="animate-fade-up-delay-2 mt-6 max-w-xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+                Velocidades de 50 a 250 Mbps por satélite. Conecta donde no llega la fibra: fincas, costas, montañas, zonas rurales y ciudades.
+                Instalación profesional en minutos. Soporte local en Venezuela.
+              </p>
+
+              <div className="animate-fade-up-delay-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <Link href="/solicitud-activacion" className="w-full sm:w-auto">
+                  <Button className="group h-[3.25rem] w-full px-7 text-[14px] font-semibold pulse-glow sm:w-auto">
+                    Contratar un plan y pagar mensualidad
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Button>
+                </Link>
+                <a href={waInfo} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                  <Button
+                    className="group h-[3.25rem] w-full gap-2 bg-emerald-500 px-7 text-[14px] font-semibold text-white shadow-[0_0_24px_-6px_rgba(16,185,129,0.55)] hover:bg-emerald-600 hover:shadow-[0_0_32px_-4px_rgba(16,185,129,0.7)] sm:w-auto"
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                    Contáctanos por WhatsApp
+                  </Button>
+                </a>
+                <Link href={portalHref} className="w-full sm:w-auto">
+                  <Button variant="outline" className="h-[3.25rem] w-full px-7 text-[14px] sm:w-auto">
+                    {portalLabel}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* RIGHT: Hero image with overlay */}
+            <div className="animate-fade-up-delay-3 relative mx-auto w-full max-w-[480px] lg:max-w-none">
+              <div className="float-slow relative aspect-[4/5] overflow-hidden rounded-3xl border border-border bg-card shadow-[0_30px_80px_-20px_hsl(var(--primary)/0.45)] glow-ring image-grain">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=900&q=80&auto=format&fit=crop"
+                  alt="Persona conectada a internet trabajando desde una zona remota"
+                  loading="eager"
+                  className="h-full w-full object-cover"
+                />
+                <div className="vignette absolute inset-0" />
+                <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-background via-background/60 to-transparent" />
+
+                {/* Top-left: signal indicator */}
+                <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/20 bg-black/40 px-3 py-1.5 backdrop-blur-md">
+                  <span className="signal-pulse h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
+                  <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-white">
+                    Conectado · 187 Mbps
+                  </span>
+                </div>
+
+                {/* Bottom-left: tech card */}
+                <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-white/15 bg-black/45 p-4 backdrop-blur-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/25 ring-1 ring-primary/50">
+                      <Satellite className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/70">Latencia</div>
+                      <div className="font-display text-lg font-semibold text-white">38 ms</div>
+                    </div>
+                    <div className="h-8 w-px bg-white/20" />
+                    <div className="flex-1">
+                      <div className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/70">Uptime</div>
+                      <div className="font-display text-lg font-semibold text-white">99.9%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating mini card */}
+              <div className="float-slower absolute -left-4 top-1/3 hidden rounded-2xl border border-border bg-card/90 p-3 shadow-2xl backdrop-blur-md sm:block">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 ring-1 ring-emerald-500/40">
+                    <Signal className="h-4 w-4 text-emerald-500" />
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-medium uppercase tracking-[0.15em] text-muted-foreground">Señal</div>
+                    <div className="text-[12px] font-semibold">Excelente</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="float-slow absolute -right-3 bottom-1/4 hidden rounded-2xl border border-border bg-card/90 p-3 shadow-2xl backdrop-blur-md sm:block">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 ring-1 ring-primary/40">
+                    <Globe className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-medium uppercase tracking-[0.15em] text-muted-foreground">Cobertura</div>
+                    <div className="text-[12px] font-semibold">100% nacional</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Stats bar */}
-          <div className="mt-14 grid grid-cols-2 gap-0 border-y border-border sm:grid-cols-4">
+          <div className="mt-16 grid grid-cols-2 gap-0 border-y border-border sm:mt-20 sm:grid-cols-4">
             {[
               { label: "Velocidad", value: "50–250", unit: "Mbps" },
               { label: "Latencia", value: "<50", unit: "ms" },
@@ -203,6 +297,115 @@ export default async function Home() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ PERSONAS CONECTADAS ============ */}
+      <section id="historias" className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 radial-glow-bottom" />
+        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="mb-12 max-w-2xl">
+            <div className="eyebrow">Personas reales conectadas</div>
+            <h2 className="mt-2 font-display text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
+              Donde antes no había señal,{" "}
+              <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+                ahora hay vida digital.
+              </span>
+            </h2>
+            <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+              Familias, profesionales y empresas en todo el país que dejaron de depender de la geografía para acceder a internet.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
+            {/* Card 1: Big — Trabajo remoto */}
+            <div className="group relative aspect-[4/5] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-5 lg:row-span-2 lg:aspect-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=900&q=80&auto=format&fit=crop"
+                alt="Profesional trabajando remotamente con conexión satelital"
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6">
+                <div className="flex items-center gap-2">
+                  <span className="signal-pulse h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
+                  <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/85">En vivo</span>
+                </div>
+                <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                  Trabajo remoto sin límites
+                </h3>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-white/80">
+                  Profesionales y emprendedores conectados desde donde antes era imposible. Videollamadas, archivos pesados, gaming — sin cortes.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 2: Familia */}
+            <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80&auto=format&fit=crop"
+                alt="Familia conectada por videollamada"
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-5">
+                <h3 className="font-display text-lg font-semibold tracking-tight text-white">Familias unidas</h3>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Videollamadas en HD desde fincas y zonas rurales.</p>
+              </div>
+            </div>
+
+            {/* Card 3: Empresa */}
+            <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1573164713988-8665fc963095?w=600&q=80&auto=format&fit=crop"
+                alt="Empresa con red satelital corporativa"
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-5">
+                <h3 className="font-display text-lg font-semibold tracking-tight text-white">Empresas</h3>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Operaciones críticas siempre online.</p>
+              </div>
+            </div>
+
+            {/* Card 4: Outdoor / Agro */}
+            <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=800&q=80&auto=format&fit=crop"
+                alt="Persona conectada en zona rural"
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-5">
+                <h3 className="font-display text-lg font-semibold tracking-tight text-white">Donde no llega la fibra</h3>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Montañas, costas, llanos, selva.</p>
+              </div>
+            </div>
+
+            {/* Card 5: Estudio / Educación */}
+            <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-card shadow-xl image-grain lg:col-span-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80&auto=format&fit=crop"
+                alt="Estudiantes conectados a clases en línea"
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-5">
+                <h3 className="font-display text-lg font-semibold tracking-tight text-white">Educación</h3>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/80">Acceso a clases y plataformas online.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
