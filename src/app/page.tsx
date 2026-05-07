@@ -1,16 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  Anchor,
   ArrowRight,
+  Award,
+  BadgeCheck,
+  Briefcase,
+  Building2,
   Check,
+  ClipboardCheck,
+  Compass,
   Globe,
+  HeadphonesIcon,
+  Home as HomeIcon,
   Instagram,
+  Lightbulb,
+  Lock,
   MapPin,
   MessageCircle,
+  Mountain,
+  Network,
+  PhoneCall,
   Radio,
   Satellite,
   ShieldCheck,
   Signal,
+  Sparkles,
+  Tractor,
   Zap,
 } from "lucide-react";
 import { prisma } from "@/lib/db";
@@ -85,6 +101,12 @@ export default async function Home() {
             <Link href="#equipos" className="hidden text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground sm:block">
               Equipos
             </Link>
+            <Link href="#asesorias" className="hidden text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground sm:block">
+              Asesorías
+            </Link>
+            <Link href="#faq" className="hidden text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground sm:block">
+              FAQ
+            </Link>
             <Link href="/solicitud-activacion" className="hidden text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground sm:block">
               Ya tengo antena
             </Link>
@@ -157,6 +179,30 @@ export default async function Home() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ TRUST STRIP ============ */}
+      <section className="border-b border-border bg-card/40">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-6 sm:grid-cols-4 sm:py-7">
+            {[
+              { icon: BadgeCheck, label: "Proveedor autorizado" },
+              { icon: ShieldCheck, label: "Garantía oficial" },
+              { icon: HeadphonesIcon, label: "Soporte local 24/7" },
+              { icon: Lock, label: "Pagos seguros en USD" },
+            ].map((b) => {
+              const Icon = b.icon;
+              return (
+                <div key={b.label} className="flex items-center gap-2.5">
+                  <Icon className="h-4 w-4 flex-shrink-0 text-primary" />
+                  <span className="text-[12px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                    {b.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -385,6 +431,139 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ============ SECTORES ============ */}
+      <section id="sectores" className="relative border-b border-border">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="mb-10 grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+            <div>
+              <div className="eyebrow">Para quién es Starlink</div>
+              <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Conectividad satelital pensada para cada sector.
+              </h2>
+            </div>
+            <p className="text-[14px] leading-relaxed text-muted-foreground">
+              Implementamos Starlink en hogares, empresas e industrias críticas en todo el territorio nacional.
+              Desde una finca remota hasta una plataforma offshore: la misma red satelital, con asesoría y soporte adaptado a tu operación.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              { icon: HomeIcon, label: "Residencial", sub: "Hogares y fincas" },
+              { icon: Building2, label: "Empresas", sub: "Oficinas y comercios" },
+              { icon: Mountain, label: "Zonas rurales", sub: "Donde no llega fibra" },
+              { icon: Tractor, label: "Agroindustria", sub: "Fundos y haciendas" },
+              { icon: Anchor, label: "Marítimo", sub: "Embarcaciones y costas" },
+              { icon: Briefcase, label: "Industria", sub: "Petróleo, minería, gas" },
+            ].map((s) => {
+              const Icon = s.icon;
+              return (
+                <div
+                  key={s.label}
+                  className="group rounded-sm border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-[0_0_24px_-12px_hsl(var(--primary))]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary/10 ring-1 ring-primary/30 transition-colors group-hover:bg-primary/15">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="mt-4 font-display text-[15px] font-semibold tracking-tight">{s.label}</div>
+                  <div className="mt-1 text-[12px] text-muted-foreground">{s.sub}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ ASESORÍAS ============ */}
+      <section id="asesorias" className="relative overflow-hidden border-b border-border bg-card/40">
+        <div className="absolute inset-0 radial-glow-bottom" />
+        <div className="grid-bg absolute inset-0 opacity-20" />
+        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[11px] font-medium uppercase tracking-[0.15em] text-primary">Servicio premium</span>
+            </div>
+            <h2 className="mt-5 font-display text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl lg:text-5xl">
+              Asesorías <span className="text-primary">Starlink</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+              ¿Tu proyecto requiere algo más que una antena? Diseñamos, dimensionamos y operamos soluciones satelitales a la medida.
+              Acompañamiento técnico de extremo a extremo, desde el diagnóstico hasta el soporte continuo.
+            </p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                icon: Lightbulb,
+                title: "Consultoría técnica",
+                text: "Diagnóstico de cobertura, dimensionamiento de la solución y propuesta a medida según tu caso de uso, presupuesto y geografía.",
+              },
+              {
+                icon: Network,
+                title: "Diseño de red multi-sitio",
+                text: "Arquitectura para múltiples ubicaciones con redundancia, balanceo y failover. Integración con tu red corporativa existente.",
+              },
+              {
+                icon: Compass,
+                title: "Análisis de cobertura",
+                text: "Verificamos disponibilidad y rendimiento esperado en tu ubicación específica antes de comprar el equipo. Cero sorpresas.",
+              },
+              {
+                icon: ClipboardCheck,
+                title: "Instalación gestionada",
+                text: "Visita técnica certificada, montaje, apuntamiento de la antena, configuración de la red local y entrega operativa.",
+              },
+              {
+                icon: HeadphonesIcon,
+                title: "Soporte gestionado 24/7",
+                text: "Monitoreo proactivo del enlace, atención prioritaria por canales dedicados y SLA con tiempo de respuesta garantizado.",
+              },
+              {
+                icon: Award,
+                title: "Soluciones sectoriales",
+                text: "Propuestas específicas para industria petrolera, agro, marítimo, gobierno y salud rural. Compliance y reportería incluida.",
+              },
+            ].map((s) => {
+              const Icon = s.icon;
+              return (
+                <div
+                  key={s.title}
+                  className="group relative flex flex-col rounded-sm border border-border bg-card p-6 transition-all hover:border-primary/40 hover:shadow-[0_0_30px_-12px_hsl(var(--primary))]"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-primary/10 ring-1 ring-primary/30">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="mt-5 font-display text-lg font-semibold tracking-tight">{s.title}</h3>
+                  <p className="mt-2 text-[13.5px] leading-relaxed text-muted-foreground">{s.text}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a
+              href={waLink(whatsapp, "Hola 👋 Quisiera agendar una asesoría para mi proyecto Starlink.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto"
+            >
+              <Button className="h-[3.25rem] w-full gap-2 px-7 text-[14px] font-semibold sm:w-auto">
+                <PhoneCall className="h-4 w-4" />
+                Agendar una asesoría
+              </Button>
+            </a>
+            <a href={`mailto:${email}?subject=Solicitud%20de%20asesor%C3%ADa%20Starlink`} className="w-full sm:w-auto">
+              <Button variant="outline" className="h-[3.25rem] w-full px-7 text-[14px] sm:w-auto">
+                Escribir por correo
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ============ POR QUÉ ============ */}
       <section className="relative border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
@@ -438,6 +617,79 @@ export default async function Home() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FAQ ============ */}
+      <section id="faq" className="relative border-b border-border">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.5fr]">
+            <div>
+              <div className="eyebrow">Preguntas frecuentes</div>
+              <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Resolvemos tus dudas.
+              </h2>
+              <p className="mt-4 max-w-md text-[14px] leading-relaxed text-muted-foreground">
+                Lo que más nos preguntan antes de contratar. Si no está acá, escríbenos por WhatsApp y te respondemos en minutos.
+              </p>
+              <a href={waInfo} target="_blank" rel="noopener noreferrer" className="mt-6 inline-block">
+                <Button variant="outline" className="h-11 gap-2 px-5 text-[13px]">
+                  <MessageCircle className="h-4 w-4" />
+                  Hacer una pregunta
+                </Button>
+              </a>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                {
+                  q: "¿Funciona Starlink en toda Venezuela?",
+                  a: "Sí. La constelación cubre el 100% del territorio nacional, incluidas zonas rurales, costeras y montañosas donde no llega la fibra ni la red móvil. Antes de instalar, verificamos cobertura y línea de visión al cielo en tu ubicación específica.",
+                },
+                {
+                  q: "¿Qué velocidad voy a tener?",
+                  a: "Entre 50 y 250 Mbps de bajada según el plan, con latencia menor a 50 ms. Suficiente para video en HD/4K, videoconferencias, gaming online y trabajo remoto sin interrupciones.",
+                },
+                {
+                  q: "¿Cuánto tarda la instalación?",
+                  a: "El kit se autoinstala en menos de 30 minutos. Si prefieres instalación profesional, agendamos visita técnica certificada que monta, apunta la antena y deja la red local funcionando.",
+                },
+                {
+                  q: "¿Hay límite de datos o throttling?",
+                  a: "Los planes residenciales son de uso ilimitado en horas estándar. No aplicamos throttling artificial. Para empresas ofrecemos planes con prioridad garantizada.",
+                },
+                {
+                  q: "¿Puedo cambiar o pausar mi plan?",
+                  a: "Sí. Puedes subir o bajar de plan al inicio de cada ciclo, y pausar el servicio si te ausentas (ideal para clientes Roam, vacaciones o proyectos temporales).",
+                },
+                {
+                  q: "¿Cómo se realiza el pago?",
+                  a: "Aceptamos Zelle, PayPal, Binance, transferencia en USD, pago móvil al paralelo y efectivo en oficina. Cada cliente tiene un portal con historial de pagos y comprobantes.",
+                },
+                {
+                  q: "¿Qué garantía tienen los equipos?",
+                  a: "Garantía oficial Starlink de 12 meses por defectos de fábrica. Adicionalmente damos respaldo local: si tienes una falla, traes el equipo y lo gestionamos directamente.",
+                },
+              ].map((item) => (
+                <details
+                  key={item.q}
+                  className="group rounded-sm border border-border bg-card transition-colors open:border-primary/40 hover:border-border/60"
+                >
+                  <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 text-[14px] font-medium [&::-webkit-details-marker]:hidden">
+                    <span>{item.q}</span>
+                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform group-open:rotate-45">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M6 1V11M1 6H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div className="px-5 pb-5 text-[13.5px] leading-relaxed text-muted-foreground">
+                    {item.a}
+                  </div>
+                </details>
+              ))}
+            </div>
           </div>
         </div>
       </section>
