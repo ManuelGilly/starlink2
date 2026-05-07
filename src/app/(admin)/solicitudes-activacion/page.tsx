@@ -74,14 +74,18 @@ export default async function SolicitudesActivacionPage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Link
-                        href={`/api/admin/receipt/${r.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[12px] text-primary hover:underline"
-                      >
-                        Ver
-                      </Link>
+                      {r.receiptUrl ? (
+                        <Link
+                          href={`/api/admin/receipt/${r.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[12px] text-primary hover:underline"
+                        >
+                          Ver
+                        </Link>
+                      ) : (
+                        <span className="text-[12px] text-muted-foreground">Sin comprobante (efectivo)</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <PlanRequestActions id={r.id} />

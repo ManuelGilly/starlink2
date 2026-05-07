@@ -236,7 +236,33 @@ enum PaymentMethod {
   BINANCE
   EFECTIVO_USD
   TRANSFERENCIA_USD
+  PAGO_MOVIL
   OTRO
+}
+
+// Configuración por método de pago: emails, comisión PayPal, dirección efectivo, etc.
+// Editable desde /metodos-pago en el admin.
+model PaymentMethodConfig {
+  id              String        @id @default(cuid())
+  code            PaymentMethod @unique
+  label           String
+  accountEmail    String?
+  accountInfo     String?
+  commissionPct   Decimal?      @db.Decimal(5, 2)
+  requiresReceipt Boolean       @default(true)
+  showVesAmount   Boolean       @default(false)
+  instructions    String?
+  active          Boolean       @default(true)
+  order           Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// Settings globales clave/valor (ej. tasa Bs/USD para pago móvil).
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }
 
 model Payment {
@@ -317,7 +343,7 @@ model PlanRequest {
 
   paymentMethod  PaymentMethod
   paymentReference String?
-  receiptUrl     String   // Comprobante subido (ruta pública bajo /uploads/...)
+  receiptUrl     String?  // null cuando el método no requiere comprobante (efectivo)
   notes          String?
 
   status         PlanRequestStatus @default(PENDIENTE)

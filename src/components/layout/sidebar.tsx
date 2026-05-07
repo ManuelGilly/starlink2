@@ -18,6 +18,7 @@ import {
   FileText,
   Inbox,
   ShoppingCart,
+  Banknote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSegments } from "@/components/theme-toggle";
@@ -31,6 +32,7 @@ const ITEMS: Item[] = [
   { href: "/planes",          label: "Planes",          icon: Boxes,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/clientes",        label: "Clientes",        icon: Users,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/pagos",           label: "Pagos",           icon: Wallet,     roles: ["ADMIN"],               section: "Finanzas" },
+  { href: "/metodos-pago",    label: "Métodos de pago", icon: Banknote,   roles: ["ADMIN"],               section: "Finanzas" },
   { href: "/ventas",          label: "Ventas",          icon: ShoppingCart, roles: ["ADMIN", "INVENTARIO"], section: "Finanzas" },
   { href: "/solicitudes-activacion", label: "Solicitudes", icon: Inbox,    roles: ["ADMIN"],               section: "Finanzas" },
   { href: "/usuarios",        label: "Usuarios",        icon: UserCog,    roles: ["ADMIN"],               section: "Sistema" },

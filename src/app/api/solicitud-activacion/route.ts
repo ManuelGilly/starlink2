@@ -14,7 +14,7 @@ const schema = z.object({
   phone: z.string().min(6).max(40),
   antennaId: z.string().min(3).max(80),
   planId: z.string().min(1),
-  paymentMethod: z.enum(["ZELLE", "PAYPAL", "BINANCE", "EFECTIVO_USD", "TRANSFERENCIA_USD", "OTRO"]),
+  paymentMethod: z.enum(["ZELLE", "PAYPAL", "BINANCE", "EFECTIVO_USD", "TRANSFERENCIA_USD", "PAGO_MOVIL", "OTRO"]),
   paymentReference: z.string().max(120).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
 });
@@ -60,21 +60,36 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Datos inválidos", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const receipt = form.get("receipt");
-  if (!(receipt instanceof File)) {
-    return NextResponse.json({ error: "Debes adjuntar el comprobante de pago" }, { status: 400 });
-  }
-
   const plan = await prisma.plan.findUnique({ where: { id: parsed.data.planId } });
   if (!plan || !plan.active) {
     return NextResponse.json({ error: "Plan no disponible" }, { status: 400 });
   }
 
-  let upload;
-  try {
-    upload = await saveReceiptFile(receipt, "receipts");
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? "Error al subir comprobante" }, { status: 400 });
+  const methodConfig = await prisma.paymentMethodConfig.findUnique({
+    where: { code: parsed.data.paymentMethod },
+  });
+  const requiresReceipt = methodConfig?.requiresReceipt ?? true;
+
+  const receipt = form.get("receipt");
+  let receiptUrl: string | null = null;
+  if (requiresReceipt) {
+    if (!(receipt instanceof File)) {
+      return NextResponse.json({ error: "Debes adjuntar el comprobante de pago" }, { status: 400 });
+    }
+    try {
+      const upload = await saveReceiptFile(receipt, "receipts");
+      receiptUrl = upload.url;
+    } catch (e: any) {
+      return NextResponse.json({ error: e?.message ?? "Error al subir comprobante" }, { status: 400 });
+    }
+  } else if (receipt instanceof File && receipt.size > 0) {
+    // Aceptar comprobante opcional incluso si no es requerido
+    try {
+      const upload = await saveReceiptFile(receipt, "receipts");
+      receiptUrl = upload.url;
+    } catch {
+      // ignorar — no es bloqueante
+    }
   }
 
   const request = await prisma.planRequest.create({
@@ -88,7 +103,7 @@ export async function POST(req: Request) {
       amount: plan.price,
       paymentMethod: parsed.data.paymentMethod,
       paymentReference: parsed.data.paymentReference ?? undefined,
-      receiptUrl: upload.url,
+      receiptUrl: receiptUrl,
       notes: parsed.data.notes ?? undefined,
     },
   });
@@ -96,7 +111,7 @@ export async function POST(req: Request) {
   const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.CONTACT_EMAIL || process.env.SEED_ADMIN_EMAIL;
   if (adminEmail) {
     const appUrl = process.env.NEXTAUTH_URL ?? "";
-    const receiptFullUrl = appUrl ? `${appUrl}${upload.url}` : upload.url;
+    const receiptFullUrl = receiptUrl ? (appUrl ? `${appUrl}${receiptUrl}` : receiptUrl) : "(no requirió comprobante)";
     const adminDetailUrl = appUrl ? `${appUrl}/solicitudes-activacion` : "/solicitudes-activacion";
 
     const subject = `Nueva solicitud de activación de plan — ${parsed.data.firstName} ${parsed.data.lastName}`;

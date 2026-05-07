@@ -14,19 +14,26 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function SolicitudActivacionPage() {
-  const plans = await prisma.plan.findMany({
-    where: { active: true },
-    orderBy: { price: "asc" },
-    select: {
-      id: true,
-      code: true,
-      name: true,
-      description: true,
-      details: true,
-      price: true,
-      billingCycle: true,
-    },
-  });
+  const [plans, methods, rateSetting] = await Promise.all([
+    prisma.plan.findMany({
+      where: { active: true },
+      orderBy: { price: "asc" },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        description: true,
+        details: true,
+        price: true,
+        billingCycle: true,
+      },
+    }),
+    prisma.paymentMethodConfig.findMany({
+      where: { active: true },
+      orderBy: { order: "asc" },
+    }),
+    prisma.appSetting.findUnique({ where: { key: "BINANCE_PARALELO_VES_USD" } }),
+  ]);
 
   const planData = plans.map((p) => ({
     id: p.id,
@@ -37,6 +44,19 @@ export default async function SolicitudActivacionPage() {
     price: Number(p.price),
     billingCycle: p.billingCycle,
   }));
+
+  const methodData = methods.map((m) => ({
+    code: m.code,
+    label: m.label,
+    accountEmail: m.accountEmail,
+    accountInfo: m.accountInfo,
+    commissionPct: m.commissionPct ? Number(m.commissionPct) : null,
+    requiresReceipt: m.requiresReceipt,
+    showVesAmount: m.showVesAmount,
+    instructions: m.instructions,
+  }));
+
+  const paraleloRate = rateSetting?.value ? Number(rateSetting.value) : 0;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -85,7 +105,7 @@ export default async function SolicitudActivacionPage() {
             No hay planes disponibles en este momento. Escríbenos por WhatsApp y te orientamos.
           </div>
         ) : (
-          <SolicitudActivacionForm plans={planData} />
+          <SolicitudActivacionForm plans={planData} methods={methodData} paraleloRate={paraleloRate} />
         )}
       </section>
     </main>
