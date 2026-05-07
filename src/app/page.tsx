@@ -154,6 +154,89 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ============ YA TENGO ANTENA ============ */}
+      <section id="ya-tengo-antena" className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 radial-glow-bottom" />
+        <div className="grid-bg absolute inset-0 opacity-20" />
+        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
+            <div>
+              <div className="eyebrow">Clientes con equipo</div>
+              <h2 className="mt-3 font-display text-4xl font-semibold leading-tight tracking-[-0.02em] sm:text-5xl">
+                Ya tengo una antena, <span className="text-primary">solo quiero contratar un plan.</span>
+              </h2>
+              <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-[17px]">
+                Si ya tienes tu kit Starlink, contrata tu plan en minutos: completa un formulario corto con tus datos y el
+                ID de tu antena, elige el plan, y adjunta el comprobante de pago. Un asesor valida y activa el servicio.
+              </p>
+
+              <ul className="mt-6 space-y-2.5 text-[14px] text-muted-foreground">
+                {[
+                  "Formulario rápido: datos de contacto + ID de antena",
+                  "Elige el plan y te mostramos el monto exacto en USD",
+                  "Sube la foto del comprobante (Zelle, PayPal, Binance, etc.)",
+                  "Nuestro equipo te confirma y activa en horas hábiles",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link href="/solicitud-activacion" className="w-full sm:w-auto">
+                  <Button className="group h-[3.25rem] w-full px-7 text-[14px] sm:w-auto">
+                    Contratar un plan
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Button>
+                </Link>
+                <a href={waInfo} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    className="h-[3.25rem] w-full gap-2 border-emerald-500/40 px-7 text-[14px] text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 sm:w-auto"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Consultar por WhatsApp
+                  </Button>
+                </a>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="relative rounded-sm border border-border bg-card/80 p-7 shadow-[0_0_40px_-20px_hsl(var(--primary))]">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary/10 ring-1 ring-primary/30">
+                    <Radio className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="eyebrow">3 pasos</div>
+                    <div className="font-display text-lg font-semibold tracking-tight">Así de simple</div>
+                  </div>
+                </div>
+                <ol className="mt-6 space-y-4">
+                  {[
+                    { t: "Tus datos y el ID de tu antena", d: "Nombre, correo, teléfono y el ID Starlink." },
+                    { t: "Elige el plan que prefieras", d: "Te mostramos el monto exacto a pagar." },
+                    { t: "Sube el comprobante de pago", d: "Foto del Zelle, PayPal, Binance o transferencia." },
+                  ].map((s, i) => (
+                    <li key={s.t} className="flex gap-3">
+                      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-sm bg-primary/15 text-[12px] font-semibold text-primary ring-1 ring-primary/30">
+                        {i + 1}
+                      </div>
+                      <div>
+                        <div className="text-[14px] font-medium">{s.t}</div>
+                        <div className="text-[13px] text-muted-foreground">{s.d}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ============ PLANES ============ */}
       <section id="planes" className="relative border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
@@ -233,89 +316,6 @@ export default async function Home() {
               })}
             </div>
           )}
-        </div>
-      </section>
-
-      {/* ============ YA TENGO ANTENA ============ */}
-      <section id="ya-tengo-antena" className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 radial-glow-bottom" />
-        <div className="grid-bg absolute inset-0 opacity-20" />
-        <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-[1.1fr_1fr]">
-            <div>
-              <div className="eyebrow">Clientes con equipo</div>
-              <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
-                Ya tengo una antena, <span className="text-primary">solo quiero contratar un plan.</span>
-              </h2>
-              <p className="mt-4 max-w-xl text-[14px] leading-relaxed text-muted-foreground sm:text-[15px]">
-                Si ya tienes tu kit Starlink, contrata tu plan en minutos: completa un formulario corto con tus datos y el
-                ID de tu antena, elige el plan, y adjunta el comprobante de pago. Un asesor valida y activa el servicio.
-              </p>
-
-              <ul className="mt-5 space-y-2 text-[13px] text-muted-foreground">
-                {[
-                  "Formulario rápido: datos de contacto + ID de antena",
-                  "Elige el plan y te mostramos el monto exacto en USD",
-                  "Sube la foto del comprobante (Zelle, PayPal, Binance, etc.)",
-                  "Nuestro equipo te confirma y activa en horas hábiles",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" />
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Link href="/solicitud-activacion" className="w-full sm:w-auto">
-                  <Button className="group h-12 w-full px-6 text-[13px] sm:w-auto">
-                    Contratar un plan
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Button>
-                </Link>
-                <a href={waInfo} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                  <Button
-                    variant="outline"
-                    className="h-12 w-full gap-2 border-emerald-500/40 px-6 text-[13px] text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 sm:w-auto"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    Consultar por WhatsApp
-                  </Button>
-                </a>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="relative rounded-sm border border-border bg-card/80 p-6 shadow-[0_0_40px_-20px_hsl(var(--primary))]">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary/10 ring-1 ring-primary/30">
-                    <Radio className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <div className="eyebrow">3 pasos</div>
-                    <div className="font-display text-base font-semibold tracking-tight">Así de simple</div>
-                  </div>
-                </div>
-                <ol className="mt-5 space-y-4">
-                  {[
-                    { t: "Tus datos y el ID de tu antena", d: "Nombre, correo, teléfono y el ID Starlink." },
-                    { t: "Elige el plan que prefieras", d: "Te mostramos el monto exacto a pagar." },
-                    { t: "Sube el comprobante de pago", d: "Foto del Zelle, PayPal, Binance o transferencia." },
-                  ].map((s, i) => (
-                    <li key={s.t} className="flex gap-3">
-                      <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-sm bg-primary/15 text-[11px] font-semibold text-primary ring-1 ring-primary/30">
-                        {i + 1}
-                      </div>
-                      <div>
-                        <div className="text-[13px] font-medium">{s.t}</div>
-                        <div className="text-[12px] text-muted-foreground">{s.d}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
