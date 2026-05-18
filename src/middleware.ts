@@ -17,6 +17,7 @@ export default withAuth(
       pathname.startsWith("/notificaciones") ||
       pathname.startsWith("/bitacora") ||
       pathname.startsWith("/pagos") ||
+      pathname.startsWith("/cobros") ||
       pathname.startsWith("/solicitudes-activacion");
 
     const isClientArea = pathname.startsWith("/mi-cuenta");
@@ -60,6 +61,7 @@ export const config = {
     "/notificaciones/:path*",
     "/bitacora/:path*",
     "/pagos/:path*",
+    "/cobros/:path*",
     "/solicitudes-activacion/:path*",
     "/mi-cuenta/:path*",
     "/cambiar-password",

@@ -273,6 +273,7 @@ model Payment {
   subscription  Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
 
   amount        Decimal       @db.Decimal(12, 2) // USD
+  starlinkCost  Decimal?      @db.Decimal(12, 2) // Costo real pagado a Starlink
   method        PaymentMethod
   reference     String?       // # confirmación, hash, etc.
   status        PaymentStatus @default(PENDIENTE)
