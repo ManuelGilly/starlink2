@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 type Client = { id: string; firstName: string; lastName: string };
 type Product = { id: string; sku: string; name: string; salePrice: number | string; warrantyDays: number };
+type Campaign = { id: string; name: string };
 type Item = { productId: string; quantity: number; unitPrice: string };
 
 function todayLocal(): string {
@@ -20,7 +21,7 @@ function todayLocal(): string {
   return local.toISOString().slice(0, 10);
 }
 
-export function NewSaleForm({ clients, products }: { clients: Client[]; products: Product[] }) {
+export function NewSaleForm({ clients, products, campaigns = [] }: { clients: Client[]; products: Product[]; campaigns?: Campaign[] }) {
   const router = useRouter();
   const firstProduct = products[0];
   const [clientId, setClientId] = useState<string>(clients[0]?.id ?? "");
@@ -31,6 +32,8 @@ export function NewSaleForm({ clients, products }: { clients: Client[]; products
   );
   const [occurredAt, setOccurredAt] = useState<string>(todayLocal());
   const [notes, setNotes] = useState("");
+  const [origin, setOrigin] = useState("ORGANICO");
+  const [campaignId, setCampaignId] = useState("");
   const [createWarranties, setCreateWarranties] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -75,6 +78,8 @@ export function NewSaleForm({ clients, products }: { clients: Client[]; products
         occurredAt: occurredAt ? new Date(occurredAt).toISOString() : undefined,
         notes: notes || undefined,
         createWarranties,
+        origin,
+        campaignId: campaignId || undefined,
       }),
     });
     setLoading(false);
@@ -86,6 +91,8 @@ export function NewSaleForm({ clients, products }: { clients: Client[]; products
     setItems(firstProduct ? [{ productId: firstProduct.id, quantity: 1, unitPrice: String(Number(firstProduct.salePrice)) }] : []);
     setNotes("");
     setOccurredAt(todayLocal());
+    setOrigin("ORGANICO");
+    setCampaignId("");
     router.refresh();
   }
 
@@ -167,6 +174,40 @@ export function NewSaleForm({ clients, products }: { clients: Client[]; products
             <span className="font-mono text-base font-medium">${total.toFixed(2)}</span>
           </div>
         </div>
+      </div>
+
+      {/* Origen / Marketing */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <Label>Origen de la venta</Label>
+          <select
+            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            value={origin}
+            onChange={(e) => {
+              setOrigin(e.target.value);
+              if (e.target.value !== "INSTAGRAM_ADS") setCampaignId("");
+            }}
+          >
+            <option value="ORGANICO">Orgánico</option>
+            <option value="INSTAGRAM_ADS">Instagram Ads</option>
+            <option value="RECOMENDADO">Recomendado</option>
+          </select>
+        </div>
+        {origin === "INSTAGRAM_ADS" && campaigns.length > 0 && (
+          <div>
+            <Label>Campaña (opcional)</Label>
+            <select
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={campaignId}
+              onChange={(e) => setCampaignId(e.target.value)}
+            >
+              <option value="">— Sin campaña específica —</option>
+              {campaigns.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       <div>

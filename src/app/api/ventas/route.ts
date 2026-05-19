@@ -20,6 +20,8 @@ const schema = z.object({
   paidAt: z.string().optional(),
   notes: z.string().nullable().optional(),
   createWarranties: z.boolean().optional().default(true),
+  origin: z.enum(["ORGANICO", "INSTAGRAM_ADS", "RECOMENDADO"]).optional().default("ORGANICO"),
+  campaignId: z.string().optional(),
 });
 
 export async function GET(req: Request) {
@@ -46,7 +48,7 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const { clientId, items, occurredAt, paidAt, notes, createWarranties } = parsed.data;
+  const { clientId, items, occurredAt, paidAt, notes, createWarranties, origin, campaignId } = parsed.data;
 
   const client = await prisma.client.findUnique({ where: { id: clientId } });
   if (!client) return NextResponse.json({ error: "Cliente no existe" }, { status: 400 });
@@ -96,6 +98,8 @@ export async function POST(req: Request) {
         total,
         paidAt: paidAt ? new Date(paidAt) : eventDate,
         notes: notes ?? undefined,
+        origin,
+        campaignId: campaignId ?? undefined,
         createdAt: eventDate, // permite registrar compras pasadas
         items: {
           create: itemsResolved.map((it) => ({

@@ -18,7 +18,8 @@ export default withAuth(
       pathname.startsWith("/bitacora") ||
       pathname.startsWith("/pagos") ||
       pathname.startsWith("/cobros") ||
-      pathname.startsWith("/solicitudes-activacion");
+      pathname.startsWith("/solicitudes-activacion") ||
+      pathname.startsWith("/marketing");
 
     const isClientArea = pathname.startsWith("/mi-cuenta");
 
@@ -63,6 +64,7 @@ export const config = {
     "/pagos/:path*",
     "/cobros/:path*",
     "/solicitudes-activacion/:path*",
+    "/marketing/:path*",
     "/mi-cuenta/:path*",
     "/cambiar-password",
   ],

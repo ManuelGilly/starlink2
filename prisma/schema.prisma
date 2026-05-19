@@ -211,6 +211,9 @@ model Subscription {
   priceLocked Decimal  @db.Decimal(12, 2)
 
   notes       String?
+  origin      SaleOrigin  @default(ORGANICO)
+  campaignId  String?
+  campaign    AdCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -219,6 +222,7 @@ model Subscription {
 
   @@index([clientId, status])
   @@index([planId])
+  @@index([campaignId])
 }
 
 // =================== PAGOS ===================
@@ -361,22 +365,63 @@ model PlanRequest {
   @@index([planId])
 }
 
+// =================== MARKETING ===================
+
+enum SaleOrigin {
+  ORGANICO
+  INSTAGRAM_ADS
+  RECOMENDADO
+}
+
+enum CampaignStatus {
+  BORRADOR
+  ACTIVA
+  PAUSADA
+  FINALIZADA
+}
+
+model AdCampaign {
+  id               String         @id @default(cuid())
+  name             String
+  description      String?
+  startDate        DateTime
+  endDate          DateTime?
+  budget           Decimal        @db.Decimal(12, 2) // inversión total USD
+  messagesReceived Int            @default(0)
+  status           CampaignStatus @default(ACTIVA)
+  platform         String         @default("Instagram")
+  adUrl            String?        // enlace al anuncio
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  sales         Sale[]
+  subscriptions Subscription[]
+
+  @@index([startDate, endDate])
+  @@index([status])
+}
+
 // =================== VENTAS DE PRODUCTOS ===================
 
 model Sale {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   clientId    String
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  total       Decimal  @db.Decimal(12, 2)
+  total       Decimal     @db.Decimal(12, 2)
   paidAt      DateTime?
   notes       String?
-  createdAt   DateTime @default(now())
+  origin      SaleOrigin  @default(ORGANICO)
+  campaignId  String?
+  campaign    AdCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdAt   DateTime    @default(now())
 
   items       SaleItem[]
   warranties  Warranty[]
 
   @@index([clientId])
+  @@index([campaignId])
 }
 
 model SaleItem {

@@ -11,6 +11,8 @@ const schema = z.object({
   billingDay: z.coerce.number().int().min(1).max(28).default(1),
   startDate: z.string().datetime().optional(),
   notes: z.string().nullable().optional(),
+  origin: z.enum(["ORGANICO", "INSTAGRAM_ADS", "RECOMENDADO"]).optional().default("ORGANICO"),
+  campaignId: z.string().optional(),
 });
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
@@ -33,6 +35,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       billingDay: parsed.data.billingDay,
       startDate: parsed.data.startDate ? new Date(parsed.data.startDate) : new Date(),
       notes: parsed.data.notes ?? undefined,
+      origin: parsed.data.origin,
+      campaignId: parsed.data.campaignId ?? undefined,
     },
   });
 

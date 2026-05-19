@@ -17,7 +17,7 @@ class StarlinkAdminApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
-      title: 'Starlink VE Admin',
+      title: 'Nexus Digital',
       theme: AppTheme.dark,
       routerConfig: router,
       debugShowCheckedModeBanner: false,

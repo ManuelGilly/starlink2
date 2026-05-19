@@ -9,7 +9,7 @@ import { NewSaleForm } from "./new-sale-form";
 export const dynamic = "force-dynamic";
 
 export default async function VentasPage() {
-  const [sales, clients, products] = await Promise.all([
+  const [sales, clients, products, campaigns] = await Promise.all([
     prisma.sale.findMany({
       include: { client: true, items: { include: { product: true } } },
       orderBy: { createdAt: "desc" },
@@ -17,6 +17,7 @@ export default async function VentasPage() {
     }),
     prisma.client.findMany({ orderBy: [{ firstName: "asc" }, { lastName: "asc" }] }),
     prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
+    prisma.adCampaign.findMany({ where: { status: { in: ["ACTIVA", "PAUSADA"] } }, orderBy: { startDate: "desc" } }),
   ]);
 
   const totalAll = sales.reduce((acc, s) => acc + Number(s.total), 0);
@@ -33,6 +34,7 @@ export default async function VentasPage() {
             <NewSaleForm
               clients={JSON.parse(JSON.stringify(clients))}
               products={JSON.parse(JSON.stringify(products))}
+              campaigns={JSON.parse(JSON.stringify(campaigns))}
             />
           </CardContent>
         </Card>

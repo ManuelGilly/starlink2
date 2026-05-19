@@ -8,7 +8,6 @@ plugins {
 android {
     namespace = "com.starlinkve.starlink_admin"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

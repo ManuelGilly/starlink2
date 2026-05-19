@@ -14,7 +14,7 @@ import { getCurrentUser } from "@/lib/rbac";
 export const dynamic = "force-dynamic";
 
 export default async function ClienteDetalle({ params }: { params: { id: string } }) {
-  const [client, plans, products, user] = await Promise.all([
+  const [client, plans, products, user, campaigns] = await Promise.all([
     prisma.client.findUnique({
       where: { id: params.id },
       include: {
@@ -27,6 +27,7 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
     prisma.plan.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     getCurrentUser(),
+    prisma.adCampaign.findMany({ where: { status: { in: ["ACTIVA", "PAUSADA"] } }, orderBy: { startDate: "desc" } }),
   ]);
   if (!client) notFound();
   const isAdmin = user?.roles.includes("ADMIN");
@@ -101,7 +102,7 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
               </TableBody>
             </Table>
             <div className="mt-4">
-              <AssignPlanForm clientId={client.id} plans={JSON.parse(JSON.stringify(plans))} />
+              <AssignPlanForm clientId={client.id} plans={JSON.parse(JSON.stringify(plans))} campaigns={JSON.parse(JSON.stringify(campaigns))} />
             </div>
           </CardContent>
         </Card>
