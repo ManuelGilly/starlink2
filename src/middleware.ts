@@ -19,7 +19,9 @@ export default withAuth(
       pathname.startsWith("/pagos") ||
       pathname.startsWith("/cobros") ||
       pathname.startsWith("/solicitudes-activacion") ||
-      pathname.startsWith("/marketing");
+      pathname.startsWith("/marketing") ||
+      pathname.startsWith("/equipos") ||
+      pathname.startsWith("/soporte");
 
     const isClientArea = pathname.startsWith("/mi-cuenta");
 
@@ -65,6 +67,8 @@ export const config = {
     "/cobros/:path*",
     "/solicitudes-activacion/:path*",
     "/marketing/:path*",
+    "/equipos/:path*",
+    "/soporte/:path*",
     "/mi-cuenta/:path*",
     "/cambiar-password",
   ],

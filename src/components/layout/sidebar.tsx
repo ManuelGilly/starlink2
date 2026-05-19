@@ -21,6 +21,8 @@ import {
   Banknote,
   BadgeDollarSign,
   Megaphone,
+  Wifi,
+  LifeBuoy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSegments } from "@/components/theme-toggle";
@@ -33,6 +35,8 @@ const ITEMS: Item[] = [
   { href: "/inventario",      label: "Inventario",      icon: Warehouse,  roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/planes",          label: "Planes",          icon: Boxes,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/clientes",        label: "Clientes",        icon: Users,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
+  { href: "/equipos",         label: "Equipos",         icon: Wifi,       roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
+  { href: "/soporte",         label: "Soporte",         icon: LifeBuoy,   roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/pagos",           label: "Pagos",           icon: Wallet,     roles: ["ADMIN"],               section: "Finanzas" },
   { href: "/cobros",          label: "Cobros",          icon: BadgeDollarSign, roles: ["ADMIN", "INVENTARIO"], section: "Finanzas" },
   { href: "/metodos-pago",    label: "Métodos de pago", icon: Banknote,   roles: ["ADMIN"],               section: "Finanzas" },

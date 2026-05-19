@@ -9,12 +9,19 @@ import { AssignPlanForm } from "./assign-plan";
 import { EditClientForm } from "./edit-form";
 import { RegisterSaleForm } from "./sale-form";
 import { DeleteButton } from "@/components/delete-button";
+import { ClientTimeline } from "./client-timeline";
+import { NewTicketForm } from "../../../(admin)/soporte/new-ticket-form";
+import { TicketActions } from "../../../(admin)/soporte/ticket-actions";
 import { getCurrentUser } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
+const CONDITION_LABEL: Record<string, string> = { NUEVO: "Nuevo", USADO: "Usado", DANADO: "Dañado", DADO_DE_BAJA: "Baja" };
+const STATUS_TICKET: Record<string, string> = { ABIERTO: "Abierto", EN_PROCESO: "En proceso", RESUELTO: "Resuelto", CERRADO: "Cerrado" };
+const PRIORITY_TICKET: Record<string, string> = { BAJA: "Baja", MEDIA: "Media", ALTA: "Alta", URGENTE: "Urgente" };
+
 export default async function ClienteDetalle({ params }: { params: { id: string } }) {
-  const [client, plans, products, user, campaigns] = await Promise.all([
+  const [client, plans, products, user, campaigns, equipment, tickets, notes] = await Promise.all([
     prisma.client.findUnique({
       where: { id: params.id },
       include: {
@@ -28,6 +35,9 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
     prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     getCurrentUser(),
     prisma.adCampaign.findMany({ where: { status: { in: ["ACTIVA", "PAUSADA"] } }, orderBy: { startDate: "desc" } }),
+    prisma.equipment.findMany({ where: { clientId: params.id, active: true } }),
+    prisma.supportTicket.findMany({ where: { clientId: params.id }, orderBy: { createdAt: "desc" }, take: 20 }),
+    prisma.clientNote.findMany({ where: { clientId: params.id }, orderBy: { createdAt: "desc" }, take: 30 }),
   ]);
   if (!client) notFound();
   const isAdmin = user?.roles.includes("ADMIN");
@@ -73,6 +83,40 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
           </CardContent>
         </Card>
 
+        {/* Equipos asignados */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Equipos / Antenas ({equipment.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {equipment.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Modelo</TableHead>
+                    <TableHead>Nº Serie</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Compra</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {equipment.map((e) => (
+                    <TableRow key={e.id}>
+                      <TableCell className="font-medium">{e.model}</TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">{e.serialNumber ?? "—"}</TableCell>
+                      <TableCell><Badge variant="outline">{CONDITION_LABEL[e.condition] ?? e.condition}</Badge></TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{e.purchaseDate ? formatDate(e.purchaseDate) : "—"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p className="text-sm text-muted-foreground">Sin equipos asignados. Regístralos en <a href="/equipos" className="underline">Equipos</a>.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Suscripciones */}
         <Card>
           <CardHeader><CardTitle>Suscripciones</CardTitle></CardHeader>
           <CardContent>
@@ -107,6 +151,53 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
           </CardContent>
         </Card>
 
+        {/* Tickets de soporte */}
+        <Card>
+          <CardHeader><CardTitle>Tickets de soporte ({tickets.filter((t) => t.status !== "CERRADO").length} activos)</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            {tickets.length > 0 && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Título</TableHead>
+                    <TableHead>Prioridad</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tickets.map((t) => (
+                    <TableRow key={t.id} className={t.status === "CERRADO" ? "opacity-50" : ""}>
+                      <TableCell className="text-xs">{formatDate(t.createdAt)}</TableCell>
+                      <TableCell className="text-sm font-medium">{t.title}</TableCell>
+                      <TableCell><Badge variant="outline">{PRIORITY_TICKET[t.priority] ?? t.priority}</Badge></TableCell>
+                      <TableCell><Badge>{STATUS_TICKET[t.status] ?? t.status}</Badge></TableCell>
+                      <TableCell><TicketActions ticket={JSON.parse(JSON.stringify(t))} /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+            <div>
+              <p className="mb-2 text-sm font-medium text-muted-foreground">Nuevo ticket</p>
+              <NewTicketForm clients={[]} defaultClientId={client.id} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Timeline / Notas CRM */}
+        <Card>
+          <CardHeader><CardTitle>Notas e historial CRM</CardTitle></CardHeader>
+          <CardContent>
+            <ClientTimeline
+              clientId={client.id}
+              notes={JSON.parse(JSON.stringify(notes))}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Historial de pagos */}
         <Card>
           <CardHeader><CardTitle>Historial de pagos</CardTitle></CardHeader>
           <CardContent>
@@ -126,7 +217,11 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
                     <TableCell>{formatDate(p.createdAt)}</TableCell>
                     <TableCell>{formatUSD(Number(p.amount))}</TableCell>
                     <TableCell>{p.method}</TableCell>
-                    <TableCell><Badge variant={p.status === "CONFIRMADO" ? "success" : p.status === "RECHAZADO" ? "destructive" : "secondary"}>{p.status}</Badge></TableCell>
+                    <TableCell>
+                      <Badge variant={p.status === "CONFIRMADO" ? "default" : p.status === "RECHAZADO" ? "destructive" : "secondary"}>
+                        {p.status}
+                      </Badge>
+                    </TableCell>
                     <TableCell>{p.reference ?? "—"}</TableCell>
                   </TableRow>
                 ))}
@@ -138,6 +233,7 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
           </CardContent>
         </Card>
 
+        {/* Garantías */}
         <Card>
           <CardHeader><CardTitle>Garantías</CardTitle></CardHeader>
           <CardContent>
@@ -169,6 +265,7 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
           </CardContent>
         </Card>
 
+        {/* Compras */}
         <Card>
           <CardHeader><CardTitle>Compras de productos</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -188,7 +285,8 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
                     <TableCell className="text-sm">
                       {s.items.map((it) => (
                         <div key={it.id}>
-                          {it.quantity}× {it.product.name} <span className="text-muted-foreground">({formatUSD(Number(it.unitPrice))})</span>
+                          {it.quantity}× {it.product.name}{" "}
+                          <span className="text-muted-foreground">({formatUSD(Number(it.unitPrice))})</span>
                         </div>
                       ))}
                     </TableCell>

@@ -88,11 +88,14 @@ model Client {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  subscriptions Subscription[]
-  payments      Payment[]
-  warranties    Warranty[]
+  subscriptions  Subscription[]
+  payments       Payment[]
+  warranties     Warranty[]
   paymentReports PaymentReport[]
-  sales         Sale[]
+  sales          Sale[]
+  equipment      Equipment[]
+  tickets        SupportTicket[]
+  clientNotes    ClientNote[]   @relation("clientNotes")
 
   @@index([email])
   @@index([phone])
@@ -531,6 +534,90 @@ model NotificationLog {
   @@index([channel, status])
   @@index([recipient])
   @@index([relatedType, relatedId])
+}
+
+// =================== EQUIPOS / ANTENAS ===================
+
+enum EquipmentCondition {
+  NUEVO
+  USADO
+  DANADO
+  DADO_DE_BAJA
+}
+
+model Equipment {
+  id            String             @id @default(cuid())
+  serialNumber  String?            @unique
+  model         String             // "Starlink Gen 3", "Starlink Mini", "Starlink RV", etc.
+  condition     EquipmentCondition @default(NUEVO)
+  clientId      String?
+  client        Client?            @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  purchaseDate  DateTime?
+  purchasePrice Decimal?           @db.Decimal(12, 2) // costo de adquisición en USD
+  notes         String?
+  active        Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([clientId])
+  @@index([serialNumber])
+  @@index([condition])
+}
+
+// =================== SOPORTE / TICKETS ===================
+
+enum TicketStatus {
+  ABIERTO
+  EN_PROCESO
+  RESUELTO
+  CERRADO
+}
+
+enum TicketType {
+  TECNICO
+  FACTURACION
+  CONSULTA
+  OTRO
+}
+
+enum TicketPriority {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+model SupportTicket {
+  id          String         @id @default(cuid())
+  clientId    String
+  client      Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  type        TicketType     @default(TECNICO)
+  status      TicketStatus   @default(ABIERTO)
+  priority    TicketPriority @default(MEDIA)
+  title       String
+  description String
+  resolution  String?
+  assignedTo  String?        // userId del admin asignado
+  resolvedAt  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([clientId, status])
+  @@index([status, priority])
+  @@index([assignedTo])
+}
+
+// =================== NOTAS DE CLIENTE (Timeline CRM) ===================
+
+model ClientNote {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade, name: "clientNotes")
+  content   String
+  authorId  String?  // userId del admin que escribió la nota
+  createdAt DateTime @default(now())
+
+  @@index([clientId, createdAt])
 }
 
 // =================== AUDITORÍA ===================
