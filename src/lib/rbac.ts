@@ -1,11 +1,43 @@
 import { getServerSession } from "next-auth";
+import { headers } from "next/headers";
+import { verify } from "jsonwebtoken";
 import type { RoleName } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
+type MobileTokenPayload = {
+  userId: string;
+  email: string;
+  name: string;
+  roles: RoleName[];
+};
+
 export async function getCurrentUser() {
+  // 1. Sesión NextAuth (web — cookie)
   const session = await getServerSession(authOptions);
-  return session?.user ?? null;
+  if (session?.user) return session.user;
+
+  // 2. Bearer JWT (mobile)
+  const auth = headers().get("authorization");
+  if (auth?.startsWith("Bearer ")) {
+    const token = auth.slice(7);
+    try {
+      const secret = process.env.NEXTAUTH_SECRET;
+      if (!secret) return null;
+      const payload = verify(token, secret) as MobileTokenPayload;
+      return {
+        id: payload.userId,
+        email: payload.email,
+        name: payload.name,
+        roles: payload.roles,
+        mustChangePassword: false,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
 }
 
 export function hasRole(roles: RoleName[] | undefined, required: RoleName | RoleName[]): boolean {
@@ -14,9 +46,6 @@ export function hasRole(roles: RoleName[] | undefined, required: RoleName | Role
   return req.some((r) => roles.includes(r));
 }
 
-/**
- * Guard para API routes. Retorna NextResponse con 401/403 o null si autorizado.
- */
 export async function requireRole(required: RoleName | RoleName[]) {
   const user = await getCurrentUser();
   if (!user) {

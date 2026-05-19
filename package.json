@@ -34,6 +34,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.454.0",
     "next": "14.2.15",
     "next-auth": "^4.24.8",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.7.5",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.0",
