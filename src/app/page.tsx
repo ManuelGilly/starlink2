@@ -34,17 +34,29 @@ import { getCurrentUser } from "@/lib/rbac";
 import { formatUSD } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { TrackLink } from "@/components/track-link";
+
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://starlink2.vercel.app");
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Starlink Venezuela — Internet satelital en cualquier parte del país",
   description:
     "Internet de alta velocidad vía satélite. Planes residenciales, móviles y empresariales. Instalación profesional y soporte local en Venezuela.",
   openGraph: {
-    title: "Starlink Venezuela",
+    title: "Starlink Venezuela — Internet desde el espacio",
     description:
-      "Velocidades de 50 a 250 Mbps vía satélite. En cualquier rincón del país. Planes Residencial, Roam y Business.",
+      "Velocidades de 50 a 250 Mbps vía satélite. En cualquier rincón del país. Planes Residencial, Roam y Business desde $40/mes.",
     type: "website",
     locale: "es_VE",
+    siteName: "Starlink Venezuela",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Starlink Venezuela — Internet desde el espacio",
+    description: "Velocidades de 50 a 250 Mbps vía satélite. Planes desde $40/mes.",
   },
 };
 
@@ -54,12 +66,27 @@ const BILLING_LABEL: Record<string, string> = {
   ONE_TIME: "pago único",
 };
 
-function waLink(phone: string, text: string): string {
+function waLink(phone: string, text: string, utmTag?: string): string {
   const n = phone.replace(/\D/g, "");
-  return `https://wa.me/${n}?text=${encodeURIComponent(text)}`;
+  const finalText = utmTag ? `${text}\n\n[${utmTag}]` : text;
+  return `https://wa.me/${n}?text=${encodeURIComponent(finalText)}`;
 }
 
-export default async function Home() {
+function buildUtmTag(params: { source?: string; medium?: string; campaign?: string }): string | undefined {
+  const parts = [params.source, params.medium, params.campaign].filter(Boolean);
+  if (parts.length === 0) return undefined;
+  return `ref:${parts.join("/")}`;
+}
+
+interface HomeProps {
+  searchParams?: {
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+  };
+}
+
+export default async function Home({ searchParams }: HomeProps) {
   const [user, plans, products] = await Promise.all([
     getCurrentUser(),
     prisma.plan.findMany({ where: { active: true }, orderBy: { price: "asc" } }),
@@ -71,6 +98,17 @@ export default async function Home() {
   const email = process.env.CONTACT_EMAIL ?? "ventas@starlink.ve";
   const city = process.env.CONTACT_CITY ?? "Venezuela";
 
+  const utmTag = buildUtmTag({
+    source: searchParams?.utm_source,
+    medium: searchParams?.utm_medium,
+    campaign: searchParams?.utm_campaign,
+  });
+  const utmData = {
+    utm_source: searchParams?.utm_source,
+    utm_medium: searchParams?.utm_medium,
+    utm_campaign: searchParams?.utm_campaign,
+  };
+
   const portalHref = user
     ? user.roles.includes("ADMIN") || user.roles.includes("INVENTARIO")
       ? "/dashboard"
@@ -78,7 +116,7 @@ export default async function Home() {
     : "/login";
   const portalLabel = user ? "Ir a mi panel" : "Portal cliente";
 
-  const waInfo = waLink(whatsapp, "Hola 👋 Quisiera información sobre Starlink Venezuela.");
+  const waInfo = waLink(whatsapp, "Hola 👋 Quisiera información sobre Starlink Venezuela.", utmTag);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -173,14 +211,21 @@ export default async function Home() {
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </Button>
                 </Link>
-                <a href={waInfo} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                <TrackLink
+                  href={waInfo}
+                  eventName="Contact"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto"
+                  customData={{ content_name: "hero-whatsapp", ...utmData }}
+                >
                   <Button
                     className="group h-[3.25rem] w-full gap-2 bg-emerald-500 px-7 text-[14px] font-semibold text-white shadow-[0_0_24px_-6px_rgba(16,185,129,0.55)] hover:bg-emerald-600 hover:shadow-[0_0_32px_-4px_rgba(16,185,129,0.7)] sm:w-auto"
                   >
                     <MessageCircle className="h-5 w-5" />
                     Contáctanos por WhatsApp
                   </Button>
-                </a>
+                </TrackLink>
                 <Link href={portalHref} className="w-full sm:w-auto">
                   <Button variant="outline" className="h-[3.25rem] w-full px-7 text-[14px] sm:w-auto">
                     {portalLabel}
@@ -457,7 +502,14 @@ export default async function Home() {
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </Button>
                 </Link>
-                <a href={waInfo} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                <TrackLink
+                  href={waInfo}
+                  eventName="Contact"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto"
+                  customData={{ content_name: "ya-tengo-antena-whatsapp", ...utmData }}
+                >
                   <Button
                     variant="outline"
                     className="h-[3.25rem] w-full gap-2 border-emerald-500/40 px-7 text-[14px] text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 sm:w-auto"
@@ -465,7 +517,7 @@ export default async function Home() {
                     <MessageCircle className="h-4 w-4" />
                     Consultar por WhatsApp
                   </Button>
-                </a>
+                </TrackLink>
               </div>
             </div>
 
@@ -530,6 +582,7 @@ export default async function Home() {
                 const waPlan = waLink(
                   whatsapp,
                   `Hola 👋 Me interesa el plan *${p.name}* (${formatUSD(Number(p.price))}${BILLING_LABEL[p.billingCycle] ?? ""}). ¿Podrían darme más información?`,
+                  utmTag,
                 );
                 return (
                   <div
@@ -570,12 +623,25 @@ export default async function Home() {
                     )}
 
                     <div className="mt-auto pt-6">
-                      <a href={waPlan} target="_blank" rel="noopener noreferrer">
+                      <TrackLink
+                        href={waPlan}
+                        eventName="Lead"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        customData={{
+                          content_name: p.name,
+                          content_category: "plan",
+                          content_ids: [p.code],
+                          currency: "USD",
+                          value: Number(p.price),
+                          ...utmData,
+                        }}
+                      >
                         <Button className={`w-full ${featured ? "" : "bg-foreground text-background hover:bg-foreground/90"}`}>
                           Quiero este plan
                           <ArrowRight className="ml-1.5 h-4 w-4" />
                         </Button>
-                      </a>
+                      </TrackLink>
                     </div>
                   </div>
                 );
@@ -609,6 +675,7 @@ export default async function Home() {
                 const waProd = waLink(
                   whatsapp,
                   `Hola 👋 Me interesa el equipo *${p.name}* (${formatUSD(Number(p.salePrice))}).`,
+                  utmTag,
                 );
                 return (
                   <div key={p.id} className="group relative flex flex-col overflow-hidden rounded-sm border border-border bg-card transition-colors hover:border-border/60">
@@ -628,12 +695,25 @@ export default async function Home() {
                           <div className="eyebrow">Desde</div>
                           <div className="font-display text-xl font-semibold">{formatUSD(Number(p.salePrice))}</div>
                         </div>
-                        <a href={waProd} target="_blank" rel="noopener noreferrer">
+                        <TrackLink
+                          href={waProd}
+                          eventName="Lead"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          customData={{
+                            content_name: p.name,
+                            content_category: "equipo",
+                            content_ids: [p.sku],
+                            currency: "USD",
+                            value: Number(p.salePrice),
+                            ...utmData,
+                          }}
+                        >
                           <Button size="sm" variant="outline" className="h-9 gap-1 px-3">
                             Consultar
                             <ArrowRight className="h-3.5 w-3.5" />
                           </Button>
-                        </a>
+                        </TrackLink>
                       </div>
                     </div>
                   </div>
@@ -756,17 +836,19 @@ export default async function Home() {
           </div>
 
           <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a
-              href={waLink(whatsapp, "Hola 👋 Quisiera agendar una asesoría para mi proyecto Starlink.")}
+            <TrackLink
+              href={waLink(whatsapp, "Hola 👋 Quisiera agendar una asesoría para mi proyecto Starlink.", utmTag)}
+              eventName="Lead"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto"
+              customData={{ content_name: "asesoria-whatsapp", content_category: "asesoria", ...utmData }}
             >
               <Button className="h-[3.25rem] w-full gap-2 px-7 text-[14px] font-semibold sm:w-auto">
                 <PhoneCall className="h-4 w-4" />
                 Agendar una asesoría
               </Button>
-            </a>
+            </TrackLink>
             <a href={`mailto:${email}?subject=Solicitud%20de%20asesor%C3%ADa%20Starlink`} className="w-full sm:w-auto">
               <Button variant="outline" className="h-[3.25rem] w-full px-7 text-[14px] sm:w-auto">
                 Escribir por correo
@@ -846,12 +928,19 @@ export default async function Home() {
               <p className="mt-4 max-w-md text-[14px] leading-relaxed text-muted-foreground">
                 Lo que más nos preguntan antes de contratar. Si no está acá, escríbenos por WhatsApp y te respondemos en minutos.
               </p>
-              <a href={waInfo} target="_blank" rel="noopener noreferrer" className="mt-6 inline-block">
+              <TrackLink
+                href={waInfo}
+                eventName="Contact"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-block"
+                customData={{ content_name: "faq-whatsapp", ...utmData }}
+              >
                 <Button variant="outline" className="h-11 gap-2 px-5 text-[13px]">
                   <MessageCircle className="h-4 w-4" />
                   Hacer una pregunta
                 </Button>
-              </a>
+              </TrackLink>
             </div>
 
             <div className="space-y-3">
@@ -919,12 +1008,19 @@ export default async function Home() {
             Escríbenos por WhatsApp, cuéntanos tu ubicación y te armamos una propuesta en minutos. Sin compromiso.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a href={waInfo} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+            <TrackLink
+              href={waInfo}
+              eventName="Contact"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto"
+              customData={{ content_name: "final-cta-whatsapp", ...utmData }}
+            >
               <Button className="h-12 w-full gap-2 bg-emerald-500 px-6 text-[13px] text-white hover:bg-emerald-600 sm:w-auto">
                 <MessageCircle className="h-4 w-4" />
                 Hablar por WhatsApp
               </Button>
-            </a>
+            </TrackLink>
             <Link href={portalHref} className="w-full sm:w-auto">
               <Button variant="outline" className="h-12 w-full px-6 text-[13px] sm:w-auto">
                 {portalLabel}
@@ -953,10 +1049,17 @@ export default async function Home() {
 
             <div className="flex flex-col gap-2 text-[12px]">
               <div className="eyebrow mb-1">Contacto</div>
-              <a href={waInfo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground">
+              <TrackLink
+                href={waInfo}
+                eventName="Contact"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                customData={{ content_name: "footer-whatsapp", ...utmData }}
+              >
                 <MessageCircle className="h-3.5 w-3.5" />
                 {whatsapp}
-              </a>
+              </TrackLink>
               <a
                 href={`https://instagram.com/${instagram.replace(/^@/, "")}`}
                 target="_blank"
@@ -983,9 +1086,16 @@ export default async function Home() {
                 {portalLabel}
               </Link>
               <span className="text-border">·</span>
-              <a href={waInfo} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+              <TrackLink
+                href={waInfo}
+                eventName="Contact"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground"
+                customData={{ content_name: "footer-soporte", ...utmData }}
+              >
                 Soporte
-              </a>
+              </TrackLink>
             </div>
           </div>
         </div>

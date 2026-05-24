@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { ThemedToaster } from "@/components/themed-toaster";
 import { themeInitScript } from "@/components/theme-provider";
+import { MetaPixel } from "@/components/meta-pixel";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
+        <MetaPixel />
         <Providers>
           {children}
           <ThemedToaster />
