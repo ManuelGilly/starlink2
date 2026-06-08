@@ -7,9 +7,12 @@
 - **Rama:** `feat/costo-real-lote-ganancia` (trabajo en curso, basada en `main`)
 - **Último commit en main:** `5c39ebb` (2026-05-18) — *feat: Notificaciones reales + Equipos/Antenas + Soporte/Tickets + Timeline CRM*
 
-## ⚠️ Pendiente operativo (entorno)
-- La migración `20260608120000_cost_profit_overhaul` está **escrita y validada en shadow DB**, pero **NO aplicada a la DB real** porque el puerto 5433 lo ocupa el contenedor `pg-shared` (no el `starlink_postgres` del repo) y las credenciales no coinciden. **Antes de usar:** levantar el postgres del proyecto (datos en `./data/postgres`) y correr `npm run db:migrate` (o `prisma migrate deploy`). El backfill es no destructivo.
+## Entorno (resuelto)
+- **DB del proyecto levantada:** contenedor `starlink_postgres` (postgres:16-alpine) corriendo en **host 5435** (el 5433 lo ocupa el compartido `pg-shared`), datos en bind-mount `./data/postgres`, arrancado con `-u $(id -u):$(id -g)`. `.env` actualizado a **5435** + `DIRECT_URL`.
+- **Migración aplicada ✓:** `prisma migrate deploy` aplicó 9 migraciones pendientes (la DB estaba atrasada en may-4: faltaban 8 de mayo + la nueva `20260608120000_cost_profit_overhaul`). `Database schema is up to date`. Backfill OK (10 PaymentSplit para 10 pagos existentes).
+- Datos actuales (prueba): users=3, clients=5, products=4, payments=10, sales=0, equipment=0, purchaselots=0.
 - El entorno tiene Node v12 en el sistema (sirve solo Docker `node:22`). Para correr Prisma/Next se usó `docker run ... node:22`.
+- ⚠️ Si tu data "real" de mayo (equipos/ventas/marketing) estaba en otro postgres (p.ej. pg-shared con otras credenciales), avísame: esta `./data/postgres` estaba en estado may-4 y ahora quedó al día con el código.
 
 ## 🚧 Feature en curso: Costo real por lote + ganancia + pago multi-método
 Plan: `~/.claude/plans/smooth-shimmying-breeze.md`. **Implementado y verificado** (tsc + `next build` + e2e a nivel de datos en shadow):
