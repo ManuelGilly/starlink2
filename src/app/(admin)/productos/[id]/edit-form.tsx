@@ -15,7 +15,6 @@ export function EditProductForm({ product }: { product: any }) {
     sku: product.sku,
     name: product.name,
     categoryId: product.categoryId ?? "",
-    costPrice: String(product.costPrice),
     salePrice: String(product.salePrice),
     minStock: product.minStock,
     warrantyDays: product.warrantyDays,
@@ -61,12 +60,14 @@ export function EditProductForm({ product }: { product: any }) {
           {cats.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
         </select>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div><Label>Costo (USD)</Label><Input type="number" step="0.01" value={form.costPrice} onChange={(e) => setForm({ ...form, costPrice: e.target.value })} /></div>
-        <div><Label>Venta (USD)</Label><Input type="number" step="0.01" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} /></div>
+      <div className="grid grid-cols-3 gap-3">
+        <div><Label>Precio de venta (USD)</Label><Input type="number" step="0.01" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} /></div>
         <div><Label>Stock mínimo</Label><Input type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: Number(e.target.value) })} /></div>
         <div><Label>Días de garantía</Label><Input type="number" value={form.warrantyDays} onChange={(e) => setForm({ ...form, warrantyDays: Number(e.target.value) })} /></div>
       </div>
+      <p className="-mt-1 text-xs text-muted-foreground">
+        Costo real actual: <strong>${Number(product.costPrice).toFixed(2)}</strong> · se actualiza automáticamente con cada lote en <strong>Compras / Lotes</strong>.
+      </p>
       <div><Label>Descripción</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
       <div><Label>Características</Label><Textarea value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} /></div>
       <label className="flex items-start gap-2 rounded-md border border-border p-3 text-sm">

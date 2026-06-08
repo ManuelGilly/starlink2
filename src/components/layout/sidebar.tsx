@@ -24,33 +24,48 @@ import {
   Wifi,
   LifeBuoy,
   Truck,
+  ChevronDown,
 } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ThemeSegments } from "@/components/theme-toggle";
 
 type Item = { href: string; label: string; icon: React.ComponentType<{ className?: string }>; roles: string[]; section?: string };
 
 const ITEMS: Item[] = [
-  { href: "/dashboard",       label: "Dashboard",       icon: BarChart3,  roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
-  { href: "/productos",       label: "Productos",       icon: Package,    roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
-  { href: "/inventario",      label: "Inventario",      icon: Warehouse,  roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
-  { href: "/compras",         label: "Compras / Lotes", icon: Truck,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
-  { href: "/planes",          label: "Planes",          icon: Boxes,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
-  { href: "/clientes",        label: "Clientes",        icon: Users,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
-  { href: "/equipos",         label: "Equipos",         icon: Wifi,       roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
-  { href: "/soporte",         label: "Soporte",         icon: LifeBuoy,   roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
-  { href: "/pagos",           label: "Pagos",           icon: Wallet,     roles: ["ADMIN"],               section: "Finanzas" },
-  { href: "/cobros",          label: "Cobros",          icon: BadgeDollarSign, roles: ["ADMIN", "INVENTARIO"], section: "Finanzas" },
-  { href: "/metodos-pago",    label: "Métodos de pago", icon: Banknote,   roles: ["ADMIN"],               section: "Finanzas" },
-  { href: "/ventas",          label: "Ventas",          icon: ShoppingCart, roles: ["ADMIN", "INVENTARIO"], section: "Finanzas" },
-  { href: "/solicitudes-activacion", label: "Solicitudes", icon: Inbox,    roles: ["ADMIN"],               section: "Finanzas" },
-  { href: "/marketing",       label: "Marketing",       icon: Megaphone,   roles: ["ADMIN"],               section: "Marketing" },
-  { href: "/usuarios",        label: "Usuarios",        icon: UserCog,    roles: ["ADMIN"],               section: "Sistema" },
-  { href: "/notificaciones",  label: "Notificaciones",  icon: Bell,       roles: ["ADMIN"],               section: "Sistema" },
-  { href: "/bitacora",        label: "Bitácora",        icon: FileText,   roles: ["ADMIN"],               section: "Sistema" },
-  { href: "/mi-cuenta",       label: "Mi cuenta",       icon: CreditCard, roles: ["CLIENTE"],             section: "Cuenta" },
-  { href: "/mi-cuenta/pagos", label: "Mis pagos",       icon: Wallet,     roles: ["CLIENTE"],             section: "Cuenta" },
-  { href: "/mi-cuenta/garantias", label: "Garantías",   icon: ShieldCheck,roles: ["CLIENTE"],             section: "Cuenta" },
+  // Principal
+  { href: "/dashboard",       label: "Dashboard",       icon: BarChart3,  roles: ["ADMIN", "INVENTARIO"], section: "Principal" },
+
+  // Ventas y cobros (todo el dinero entrante)
+  { href: "/ventas",          label: "Ventas",          icon: ShoppingCart,    roles: ["ADMIN", "INVENTARIO"], section: "Ventas y cobros" },
+  { href: "/cobros",          label: "Cobros de planes", icon: BadgeDollarSign, roles: ["ADMIN", "INVENTARIO"], section: "Ventas y cobros" },
+  { href: "/pagos",           label: "Pagos",           icon: Wallet,          roles: ["ADMIN"],               section: "Ventas y cobros" },
+  { href: "/solicitudes-activacion", label: "Solicitudes", icon: Inbox,       roles: ["ADMIN"],               section: "Ventas y cobros" },
+
+  // Catálogo e inventario
+  { href: "/productos",       label: "Productos",       icon: Package,    roles: ["ADMIN", "INVENTARIO"], section: "Catálogo e inventario" },
+  { href: "/planes",          label: "Planes",          icon: Boxes,      roles: ["ADMIN", "INVENTARIO"], section: "Catálogo e inventario" },
+  { href: "/compras",         label: "Compras / Lotes", icon: Truck,      roles: ["ADMIN", "INVENTARIO"], section: "Catálogo e inventario" },
+  { href: "/inventario",      label: "Inventario",      icon: Warehouse,  roles: ["ADMIN", "INVENTARIO"], section: "Catálogo e inventario" },
+  { href: "/equipos",         label: "Equipos",         icon: Wifi,       roles: ["ADMIN", "INVENTARIO"], section: "Catálogo e inventario" },
+
+  // Clientes
+  { href: "/clientes",        label: "Clientes",        icon: Users,      roles: ["ADMIN", "INVENTARIO"], section: "Clientes" },
+  { href: "/soporte",         label: "Soporte",         icon: LifeBuoy,   roles: ["ADMIN", "INVENTARIO"], section: "Clientes" },
+
+  // Marketing
+  { href: "/marketing",       label: "Marketing",       icon: Megaphone,  roles: ["ADMIN"],               section: "Marketing" },
+
+  // Configuración
+  { href: "/metodos-pago",    label: "Métodos de pago", icon: Banknote,   roles: ["ADMIN"],               section: "Configuración" },
+  { href: "/usuarios",        label: "Usuarios",        icon: UserCog,    roles: ["ADMIN"],               section: "Configuración" },
+  { href: "/notificaciones",  label: "Notificaciones",  icon: Bell,       roles: ["ADMIN"],               section: "Configuración" },
+  { href: "/bitacora",        label: "Bitácora",        icon: FileText,   roles: ["ADMIN"],               section: "Configuración" },
+
+  // Cliente
+  { href: "/mi-cuenta",       label: "Mi cuenta",       icon: CreditCard, roles: ["CLIENTE"],             section: "Mi cuenta" },
+  { href: "/mi-cuenta/pagos", label: "Mis pagos",       icon: Wallet,     roles: ["CLIENTE"],             section: "Mi cuenta" },
+  { href: "/mi-cuenta/garantias", label: "Garantías",   icon: ShieldCheck,roles: ["CLIENTE"],             section: "Mi cuenta" },
 ];
 
 export function Sidebar() {
@@ -60,6 +75,13 @@ export function Sidebar() {
 
   const items = ITEMS.filter((i) => i.roles.some((r) => roles.includes(r as any)));
   const sections = Array.from(new Set(items.map((i) => i.section ?? "—")));
+
+  // Sección que contiene la ruta actual (se abre por defecto).
+  const activeSection =
+    items.find((i) => pathname === i.href || pathname.startsWith(i.href + "/"))?.section ?? sections[0];
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const isOpen = (s: string) => overrides[s] ?? s === activeSection;
+  const toggle = (s: string) => setOverrides((p) => ({ ...p, [s]: !isOpen(s) }));
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-border bg-background">
@@ -76,36 +98,47 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Navegación por secciones */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {sections.map((section) => (
-          <div key={section} className="mb-6 last:mb-2">
-            <div className="mb-2 px-2 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/80">
-              {section}
+      {/* Navegación por secciones colapsables */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        {sections.map((section) => {
+          const open = isOpen(section);
+          const sectionItems = items.filter((i) => (i.section ?? "—") === section);
+          return (
+            <div key={section}>
+              <button
+                type="button"
+                onClick={() => toggle(section)}
+                className="flex w-full items-center justify-between rounded-sm px-2 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/70 transition-colors hover:text-foreground"
+              >
+                <span>{section}</span>
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open ? "" : "-rotate-90")} />
+              </button>
+              {open && (
+                <div className="mt-0.5 space-y-0.5 pb-1">
+                  {sectionItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = pathname === item.href || pathname.startsWith(item.href + "/");
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "group flex items-center gap-2.5 rounded-sm px-2 py-1.5 text-sm transition-colors",
+                          active
+                            ? "bg-primary/10 font-medium text-primary"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                        )}
+                      >
+                        <Icon className={cn("h-4 w-4 shrink-0", active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-            <div className="space-y-0.5">
-              {items.filter((i) => (i.section ?? "—") === section).map((item) => {
-                const Icon = item.icon;
-                const active = pathname === item.href || pathname.startsWith(item.href + "/");
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "group flex items-center gap-2.5 rounded-sm px-2 py-2 text-[13px] font-medium uppercase tracking-[0.08em] transition-colors",
-                      active
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                    )}
-                  >
-                    <Icon className={cn("h-4 w-4", active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       {/* Footer usuario */}

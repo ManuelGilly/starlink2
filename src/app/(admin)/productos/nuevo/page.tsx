@@ -16,7 +16,6 @@ export default function NuevoProductoPage() {
     sku: "",
     name: "",
     categoryId: "",
-    costPrice: "",
     salePrice: "",
     minStock: 0,
     warrantyDays: 0,
@@ -69,12 +68,12 @@ export default function NuevoProductoPage() {
                 {cats.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Costo (USD)</Label><Input required type="number" step="0.01" value={form.costPrice} onChange={(e) => setForm({ ...form, costPrice: e.target.value })} /></div>
-              <div><Label>Venta (USD)</Label><Input required type="number" step="0.01" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} /></div>
+            <div className="grid grid-cols-3 gap-3">
+              <div><Label>Precio de venta (USD)</Label><Input required type="number" step="0.01" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} /></div>
               <div><Label>Stock mínimo</Label><Input type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: Number(e.target.value) })} /></div>
               <div><Label>Días de garantía</Label><Input type="number" value={form.warrantyDays} onChange={(e) => setForm({ ...form, warrantyDays: Number(e.target.value) })} /></div>
             </div>
+            <p className="-mt-1 text-xs text-muted-foreground">El costo real se calcula automáticamente al registrar lotes en <strong>Compras / Lotes</strong>.</p>
             <label className="flex items-start gap-2 rounded-md border border-border p-3 text-sm">
               <input type="checkbox" className="mt-0.5" checked={form.serialized} onChange={(e) => setForm({ ...form, serialized: e.target.checked })} />
               <span>

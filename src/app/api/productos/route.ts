@@ -10,7 +10,9 @@ const schema = z.object({
   description: z.string().optional().nullable(),
   features: z.string().optional().nullable(),
   categoryId: z.string().optional().nullable(),
-  costPrice: z.coerce.number().nonnegative(),
+  // El costo real se calcula desde Compras/Lotes; al crear se inicializa en 0 y
+  // se actualiza con el primer lote registrado.
+  costPrice: z.coerce.number().nonnegative().optional().default(0),
   salePrice: z.coerce.number().nonnegative(),
   minStock: z.coerce.number().int().nonnegative().default(0),
   warrantyDays: z.coerce.number().int().nonnegative().default(0),
