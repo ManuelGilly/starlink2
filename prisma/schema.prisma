@@ -128,6 +128,11 @@ model Product {
   minStock      Int      @default(0)        // umbral mínimo para alertar
   warrantyDays  Int      @default(0)        // días de garantía por unidad vendida
 
+  // Si true, se rastrea por unidad serializada (antenas/equipos); cada unidad
+  // tiene su propio costo real (landed) según el lote en que se compró.
+  // Si false, se maneja por cantidad y el costo es el del último lote.
+  serialized    Boolean  @default(false)
+
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -135,6 +140,8 @@ model Product {
   movements     InventoryMovement[]
   saleItems     SaleItem[]
   warranties    Warranty[]
+  lots          PurchaseLot[]
+  units         Equipment[]
 
   @@index([sku])
   @@index([categoryId])
@@ -162,8 +169,60 @@ model InventoryMovement {
   occurredAt  DateTime     @default(now())
   createdAt   DateTime     @default(now())
 
+  lot         PurchaseLot? // lote de compra que generó esta ENTRADA (si aplica)
+
   @@index([productId, occurredAt])
   @@index([type])
+}
+
+// =================== COMPRAS / LOTES ===================
+// Un lote = una compra de un producto con su costo base + flete + impuestos.
+// El costo "landed" (real) se reparte entre las unidades del lote.
+
+enum ChargeMode {
+  FIXED       // monto fijo en USD
+  PERCENT     // porcentaje sobre el costo base
+}
+
+model PurchaseLot {
+  id              String     @id @default(cuid())
+  productId       String
+  product         Product    @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  reference       String?    // # factura / remisión / orden de compra
+  purchasedAt     DateTime   @default(now())
+  quantity        Int        // unidades compradas en el lote
+
+  // Costo base
+  baseUnitCost    Decimal    @db.Decimal(12, 2)            // costo base por unidad (input)
+  baseTotal       Decimal    @db.Decimal(12, 2)            // = baseUnitCost * quantity
+
+  // Flete (opcional; fijo o %). El % se calcula sobre baseTotal.
+  freightApplies  Boolean    @default(false)
+  freightMode     ChargeMode?
+  freightValue    Decimal?   @db.Decimal(12, 2)            // input crudo: USD si FIXED, % si PERCENT
+  freightTotalUSD Decimal    @db.Decimal(12, 2) @default(0)
+
+  // Impuestos (opcional; fijo o %). El % se calcula sobre baseTotal (solo base).
+  taxApplies      Boolean    @default(false)
+  taxMode         ChargeMode?
+  taxValue        Decimal?   @db.Decimal(12, 2)
+  taxTotalUSD     Decimal    @db.Decimal(12, 2) @default(0)
+
+  // Resultado
+  landedTotal     Decimal    @db.Decimal(12, 2)            // baseTotal + freightTotalUSD + taxTotalUSD
+  landedUnitCost  Decimal    @db.Decimal(12, 2)            // landedTotal / quantity  ← costo real unitario
+
+  notes           String?
+  createdAt       DateTime   @default(now())
+  createdBy       String?    // userId admin que registró el lote
+
+  // INTEGRACIÓN
+  movementId      String?    @unique
+  movement        InventoryMovement? @relation(fields: [movementId], references: [id], onDelete: SetNull)
+  units           Equipment[]        // unidades serializadas creadas por este lote
+
+  @@index([productId, purchasedAt])
 }
 
 // =================== PLANES STARLINK ===================
@@ -278,9 +337,13 @@ model Payment {
   client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
   subscriptionId String?
   subscription  Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  saleId        String?       @unique
+  sale          Sale?         @relation(fields: [saleId], references: [id], onDelete: SetNull)
 
+  // amount es el TOTAL canónico en USD = Σ splits.amountUSD (lo lee la app móvil).
   amount        Decimal       @db.Decimal(12, 2) // USD
-  starlinkCost  Decimal?      @db.Decimal(12, 2) // Costo real pagado a Starlink
+  starlinkCost  Decimal?      @db.Decimal(12, 2) // Costo real pagado a Starlink (planes)
+  // method = método del split principal/único (compatibilidad con métricas y móvil).
   method        PaymentMethod
   reference     String?       // # confirmación, hash, etc.
   status        PaymentStatus @default(PENDIENTE)
@@ -295,10 +358,31 @@ model Payment {
   updatedAt     DateTime      @updatedAt
 
   report        PaymentReport?
+  splits        PaymentSplit[]
 
   @@index([clientId, status])
   @@index([subscriptionId])
   @@index([status])
+}
+
+// Desglose de un pago en uno o varios métodos. Permite que un pago se salde
+// con varios métodos a la vez (ej. mitad Zelle, mitad Pago Móvil) y guarda el
+// monto en Bs + la tasa del día (snapshot histórico) para métodos en bolívares.
+model PaymentSplit {
+  id          String        @id @default(cuid())
+  paymentId   String
+  payment     Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  method      PaymentMethod
+  amountUSD   Decimal       @db.Decimal(12, 2)   // canónico (USD)
+  amountVes   Decimal?      @db.Decimal(14, 2)   // monto en Bs (si método en bolívares)
+  vesRate     Decimal?      @db.Decimal(14, 4)   // tasa Bs/USD snapshot del pago
+  reference   String?
+
+  createdAt   DateTime      @default(now())
+
+  @@index([paymentId])
+  @@index([method])
 }
 
 // Reporte de pago enviado por el cliente (antes de confirmación admin)
@@ -422,6 +506,7 @@ model Sale {
 
   items       SaleItem[]
   warranties  Warranty[]
+  payment     Payment?
 
   @@index([clientId])
   @@index([campaignId])
@@ -436,6 +521,13 @@ model SaleItem {
   quantity   Int
   unitPrice  Decimal @db.Decimal(12, 2)
   subtotal   Decimal @db.Decimal(12, 2)
+
+  // Costo real (landed) al momento de la venta, para calcular la ganancia real.
+  unitCostSnapshot Decimal? @db.Decimal(12, 2)
+  costTotal        Decimal? @db.Decimal(12, 2) // = unitCostSnapshot * quantity
+
+  // Unidad serializada vendida en esta línea (productos serializados: 1 línea = 1 unidad).
+  unit       Equipment?
 
   @@index([saleId])
   @@index([productId])
@@ -536,7 +628,11 @@ model NotificationLog {
   @@index([relatedType, relatedId])
 }
 
-// =================== EQUIPOS / ANTENAS ===================
+// =================== EQUIPOS / ANTENAS (unidades serializadas) ===================
+// Un Equipment es una UNIDAD serializada de un Producto serializado. Se crea al
+// registrar un lote de compra (PurchaseLot) con su costo real (landedCost) y se
+// consume al venderse, permitiendo calcular la ganancia real de esa unidad.
+// Las filas legacy (sin productId) siguen siendo válidas.
 
 enum EquipmentCondition {
   NUEVO
@@ -545,15 +641,39 @@ enum EquipmentCondition {
   DADO_DE_BAJA
 }
 
+// Disponibilidad comercial (separada del estado físico `condition`).
+enum UnitAvailability {
+  DISPONIBLE   // en stock, vendible
+  RESERVADO
+  VENDIDO
+  DEVUELTO
+  BAJA         // dado de baja / merma
+}
+
 model Equipment {
   id            String             @id @default(cuid())
   serialNumber  String?            @unique
   model         String             // "Starlink Gen 3", "Starlink Mini", "Starlink RV", etc.
   condition     EquipmentCondition @default(NUEVO)
+
+  // Vínculo al catálogo y al lote de compra (nullable para filas legacy)
+  productId     String?
+  product       Product?           @relation(fields: [productId], references: [id], onDelete: Restrict)
+  lotId         String?
+  lot           PurchaseLot?       @relation(fields: [lotId], references: [id], onDelete: SetNull)
+  landedCost    Decimal?           @db.Decimal(12, 2) // costo real de ESTA unidad (de su lote)
+
+  // Disponibilidad comercial
+  availability  UnitAvailability   @default(DISPONIBLE)
+
+  // Venta que consumió esta unidad
+  saleItemId    String?            @unique
+  saleItem      SaleItem?          @relation(fields: [saleItemId], references: [id], onDelete: SetNull)
+
   clientId      String?
   client        Client?            @relation(fields: [clientId], references: [id], onDelete: SetNull)
   purchaseDate  DateTime?
-  purchasePrice Decimal?           @db.Decimal(12, 2) // costo de adquisición en USD
+  purchasePrice Decimal?           @db.Decimal(12, 2) // costo de adquisición legacy (landedCost lo supersede)
   notes         String?
   active        Boolean            @default(true)
   createdAt     DateTime           @default(now())
@@ -562,6 +682,7 @@ model Equipment {
   @@index([clientId])
   @@index([serialNumber])
   @@index([condition])
+  @@index([productId, availability])
 }
 
 // =================== SOPORTE / TICKETS ===================

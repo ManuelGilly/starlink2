@@ -200,6 +200,15 @@ export async function getDashboardData(): Promise<DashboardData> {
   const outflowMap: Record<string, number> = {};
   for (const o of outflows) outflowMap[o.productId] = o._sum.quantity ?? 0;
 
+  // Valuación real de productos serializados: suma del costo landed de las unidades DISPONIBLES.
+  const serializedValue = await prisma.equipment.groupBy({
+    by: ["productId"],
+    where: { availability: "DISPONIBLE", productId: { not: null } },
+    _sum: { landedCost: true },
+  });
+  const serializedValueMap: Record<string, number> = {};
+  for (const s of serializedValue) if (s.productId) serializedValueMap[s.productId] = Number(s._sum.landedCost ?? 0);
+
   let inventoryInvestment = 0;
   let inventoryValueAtSale = 0;
   let lowStockCount = 0;
@@ -208,7 +217,8 @@ export async function getDashboardData(): Promise<DashboardData> {
   for (const p of products) {
     const stock = stocks[p.id] ?? 0;
     const cost = Number(p.costPrice);
-    const value = stock * cost;
+    // Serializados: valor real = Σ costo landed de unidades disponibles. Resto: stock * costo.
+    const value = p.serialized ? serializedValueMap[p.id] ?? 0 : stock * cost;
     inventoryInvestment += value;
     inventoryValueAtSale += stock * Number(p.salePrice);
     if (stock <= p.minStock) lowStockCount++;

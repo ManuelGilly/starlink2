@@ -23,6 +23,7 @@ import {
   Megaphone,
   Wifi,
   LifeBuoy,
+  Truck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSegments } from "@/components/theme-toggle";
@@ -33,6 +34,7 @@ const ITEMS: Item[] = [
   { href: "/dashboard",       label: "Dashboard",       icon: BarChart3,  roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/productos",       label: "Productos",       icon: Package,    roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/inventario",      label: "Inventario",      icon: Warehouse,  roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
+  { href: "/compras",         label: "Compras / Lotes", icon: Truck,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/planes",          label: "Planes",          icon: Boxes,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/clientes",        label: "Clientes",        icon: Users,      roles: ["ADMIN", "INVENTARIO"], section: "Operación" },
   { href: "/equipos",         label: "Equipos",         icon: Wifi,       roles: ["ADMIN", "INVENTARIO"], section: "Operación" },

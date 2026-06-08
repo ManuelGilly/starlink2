@@ -24,7 +24,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
   const sale = await prisma.sale.findUnique({
     where: { id: params.id },
-    include: { items: true },
+    include: { items: { include: { unit: true } } },
   });
   if (!sale) return NextResponse.json({ error: "No existe" }, { status: 404 });
 
@@ -40,9 +40,17 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
           notes: "Eliminación de venta",
         },
       });
+      // Liberar unidad serializada (vuelve a DISPONIBLE, sin cliente).
+      if (it.unit) {
+        await tx.equipment.update({
+          where: { id: it.unit.id },
+          data: { availability: "DISPONIBLE", clientId: null, saleItemId: null },
+        });
+      }
     }
-    // Borrar garantías asociadas y la venta (cascada borra items)
+    // Borrar garantías asociadas y la venta (cascada borra items y splits del pago)
     await tx.warranty.deleteMany({ where: { saleId: sale.id } });
+    await tx.payment.deleteMany({ where: { saleId: sale.id } });
     await tx.sale.delete({ where: { id: sale.id } });
   });
 

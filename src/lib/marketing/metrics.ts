@@ -63,7 +63,13 @@ export async function getCampaignMetrics(campaignId: string): Promise<CampaignMe
   for (const sale of campaign.sales) {
     productRevenue += Number(sale.total);
     for (const item of sale.items) {
-      productCogs += Number(item.product.costPrice) * item.quantity;
+      // COGS real: usa el costo landed capturado en la venta; cae al costPrice si es histórico.
+      productCogs +=
+        item.costTotal != null
+          ? Number(item.costTotal)
+          : item.unitCostSnapshot != null
+            ? Number(item.unitCostSnapshot) * item.quantity
+            : Number(item.product.costPrice) * item.quantity;
     }
   }
 
@@ -119,7 +125,12 @@ export async function getProductBreakdownByCampaign(campaignId: string): Promise
       const key = item.productId;
       const existing = map.get(key);
       const revenue = Number(item.subtotal);
-      const cogs = Number(item.product.costPrice) * item.quantity;
+      const cogs =
+        item.costTotal != null
+          ? Number(item.costTotal)
+          : item.unitCostSnapshot != null
+            ? Number(item.unitCostSnapshot) * item.quantity
+            : Number(item.product.costPrice) * item.quantity;
       if (existing) {
         existing.unitsSold += item.quantity;
         existing.revenue += revenue;

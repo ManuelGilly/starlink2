@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
 import { Topbar } from "@/components/layout/topbar";
 import { CobrosWorkspace } from "./workspace";
+import { getVesRate } from "@/lib/payments/rate";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,8 @@ export default async function CobrosPage({
     };
   });
 
+  const rate = await getVesRate();
+
   return (
     <>
       <Topbar title="Cobros" />
@@ -81,6 +84,7 @@ export default async function CobrosPage({
         month={month}
         periodoInicio={periodoInicio.toISOString()}
         periodoFin={periodoFin.toISOString()}
+        rate={rate}
       />
     </>
   );

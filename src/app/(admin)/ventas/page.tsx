@@ -5,10 +5,12 @@ import { Topbar } from "@/components/layout/topbar";
 import { formatDate, formatUSD } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { NewSaleForm } from "./new-sale-form";
+import { getVesRate } from "@/lib/payments/rate";
 
 export const dynamic = "force-dynamic";
 
 export default async function VentasPage() {
+  const rate = await getVesRate();
   const [sales, clients, products, campaigns] = await Promise.all([
     prisma.sale.findMany({
       include: { client: true, items: { include: { product: true } } },
@@ -35,6 +37,7 @@ export default async function VentasPage() {
               clients={JSON.parse(JSON.stringify(clients))}
               products={JSON.parse(JSON.stringify(products))}
               campaigns={JSON.parse(JSON.stringify(campaigns))}
+              rate={rate}
             />
           </CardContent>
         </Card>

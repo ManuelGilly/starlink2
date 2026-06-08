@@ -20,11 +20,15 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const clientId = url.searchParams.get("clientId");
   const unassigned = url.searchParams.get("unassigned") === "true";
+  const productId = url.searchParams.get("productId");
+  const available = url.searchParams.get("available") === "true";
 
   const equipment = await prisma.equipment.findMany({
     where: {
       ...(clientId ? { clientId } : {}),
       ...(unassigned ? { clientId: null } : {}),
+      ...(productId ? { productId } : {}),
+      ...(available ? { availability: "DISPONIBLE" } : {}),
       active: true,
     },
     include: { client: { select: { id: true, firstName: true, lastName: true } } },

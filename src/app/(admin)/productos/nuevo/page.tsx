@@ -20,6 +20,7 @@ export default function NuevoProductoPage() {
     salePrice: "",
     minStock: 0,
     warrantyDays: 0,
+    serialized: false,
     description: "",
     features: "",
   });
@@ -74,6 +75,13 @@ export default function NuevoProductoPage() {
               <div><Label>Stock mínimo</Label><Input type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: Number(e.target.value) })} /></div>
               <div><Label>Días de garantía</Label><Input type="number" value={form.warrantyDays} onChange={(e) => setForm({ ...form, warrantyDays: Number(e.target.value) })} /></div>
             </div>
+            <label className="flex items-start gap-2 rounded-md border border-border p-3 text-sm">
+              <input type="checkbox" className="mt-0.5" checked={form.serialized} onChange={(e) => setForm({ ...form, serialized: e.target.checked })} />
+              <span>
+                <span className="font-medium">Rastrear por unidad / serial</span>
+                <span className="block text-xs text-muted-foreground">Para antenas/equipos: cada unidad tendrá su costo real según el lote, y al venderla se calcula su ganancia real. Déjalo sin marcar para accesorios (se manejan por cantidad).</span>
+              </span>
+            </label>
             <div><Label>Descripción</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
             <div><Label>Características principales</Label><Textarea value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} /></div>
             <Button disabled={loading}>{loading ? "Guardando…" : "Guardar"}</Button>

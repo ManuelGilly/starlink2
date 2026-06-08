@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Topbar } from "@/components/layout/topbar";
 import { Badge } from "@/components/ui/badge";
 import { formatUSD, formatDateTime } from "@/lib/utils";
+import { METHOD_LABELS } from "@/lib/payments/methods";
 import { EditPaymentForm } from "./edit-form";
 import { DeleteButton } from "@/components/delete-button";
 import { getCurrentUser, hasRole } from "@/lib/rbac";
@@ -18,6 +19,8 @@ export default async function PagoDetallePage({ params }: { params: { id: string
         client: true,
         subscription: { include: { plan: true } },
         report: true,
+        splits: true,
+        sale: { include: { items: { include: { product: true } } } },
       },
     }),
     getCurrentUser(),
@@ -46,6 +49,52 @@ export default async function PagoDetallePage({ params }: { params: { id: string
             </div>
           </CardContent>
         </Card>
+
+        {payment.splits.length > 0 && (
+          <Card>
+            <CardHeader><CardTitle>Desglose de métodos</CardTitle></CardHeader>
+            <CardContent className="space-y-1 text-sm">
+              {payment.splits.map((s) => (
+                <div key={s.id} className="flex items-center justify-between border-b border-border/50 py-1 last:border-0">
+                  <span>{METHOD_LABELS[s.method]}</span>
+                  <span className="text-right font-mono">
+                    {formatUSD(Number(s.amountUSD))}
+                    {s.amountVes != null && s.vesRate != null && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({Number(s.amountVes).toFixed(2)} Bs @ {Number(s.vesRate).toFixed(2)})
+                      </span>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {payment.sale && (
+          <Card>
+            <CardHeader><CardTitle>Venta asociada</CardTitle></CardHeader>
+            <CardContent className="space-y-1 text-sm">
+              {payment.sale.items.map((it) => {
+                const cost = it.costTotal != null ? Number(it.costTotal) : null;
+                const ganancia = cost != null ? Number(it.subtotal) - cost : null;
+                return (
+                  <div key={it.id} className="flex items-center justify-between border-b border-border/50 py-1 last:border-0">
+                    <span>{it.quantity}× {it.product.name}</span>
+                    <span className="text-right font-mono">
+                      {formatUSD(Number(it.subtotal))}
+                      {ganancia != null && (
+                        <span className={`ml-2 text-xs ${ganancia >= 0 ? "text-green-500" : "text-destructive"}`}>
+                          (gan. {formatUSD(ganancia)})
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader><CardTitle>Editar pago</CardTitle></CardHeader>

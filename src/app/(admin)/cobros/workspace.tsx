@@ -44,9 +44,10 @@ type Props = {
   month: number; // 1-indexed
   periodoInicio: string;
   periodoFin: string;
+  rate: number;
 };
 
-export function CobrosWorkspace({ rows, year, month, periodoInicio, periodoFin }: Props) {
+export function CobrosWorkspace({ rows, year, month, periodoInicio, periodoFin, rate }: Props) {
   const router = useRouter();
   const [selectedRow, setSelectedRow] = useState<Row | null>(null);
 
@@ -226,6 +227,7 @@ export function CobrosWorkspace({ rows, year, month, periodoInicio, periodoFin }
           row={selectedRow}
           periodoInicio={periodoInicio}
           periodoFin={periodoFin}
+          rate={rate}
           onClose={() => setSelectedRow(null)}
           onSuccess={() => {
             setSelectedRow(null);

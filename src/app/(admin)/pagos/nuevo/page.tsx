@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Topbar } from "@/components/layout/topbar";
 import { getCurrentUser, hasRole } from "@/lib/rbac";
+import { getVesRate } from "@/lib/payments/rate";
 import { NewPaymentForm } from "./new-payment-form";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,8 @@ export const dynamic = "force-dynamic";
 export default async function NuevoPagoPage() {
   const user = await getCurrentUser();
   if (!hasRole(user?.roles, "ADMIN")) redirect("/pagos");
+
+  const rate = await getVesRate();
 
   const clients = await prisma.client.findMany({
     orderBy: { lastName: "asc" },
@@ -39,7 +42,7 @@ export default async function NuevoPagoPage() {
         <Card className="max-w-3xl">
           <CardHeader><CardTitle>Registrar pago manual</CardTitle></CardHeader>
           <CardContent>
-            <NewPaymentForm clients={data} />
+            <NewPaymentForm clients={data} rate={rate} />
           </CardContent>
         </Card>
       </div>

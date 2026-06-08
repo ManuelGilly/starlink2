@@ -21,6 +21,7 @@ export function EditProductForm({ product }: { product: any }) {
     warrantyDays: product.warrantyDays,
     description: product.description ?? "",
     features: product.features ?? "",
+    serialized: product.serialized ?? false,
     active: product.active,
   });
   const [loading, setLoading] = useState(false);
@@ -68,6 +69,13 @@ export function EditProductForm({ product }: { product: any }) {
       </div>
       <div><Label>Descripción</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
       <div><Label>Características</Label><Textarea value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} /></div>
+      <label className="flex items-start gap-2 rounded-md border border-border p-3 text-sm">
+        <input type="checkbox" className="mt-0.5" checked={form.serialized} onChange={(e) => setForm({ ...form, serialized: e.target.checked })} />
+        <span>
+          <span className="font-medium">Rastrear por unidad / serial</span>
+          <span className="block text-xs text-muted-foreground">Antenas/equipos: cada unidad lleva su costo real del lote. Accesorios: déjalo sin marcar.</span>
+        </span>
+      </label>
       <div className="flex items-center gap-2">
         <input id="active" type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
         <Label htmlFor="active">Activo</Label>

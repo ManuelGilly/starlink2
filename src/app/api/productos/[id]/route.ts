@@ -15,6 +15,7 @@ const schema = z.object({
   salePrice: z.coerce.number().nonnegative().optional(),
   minStock: z.coerce.number().int().nonnegative().optional(),
   warrantyDays: z.coerce.number().int().nonnegative().optional(),
+  serialized: z.boolean().optional(),
   active: z.boolean().optional(),
 });
 

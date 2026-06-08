@@ -7,8 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-const METHODS = ["ZELLE", "PAYPAL", "BINANCE", "EFECTIVO_USD", "TRANSFERENCIA_USD", "OTRO"] as const;
+import {
+  PaymentSplitsEditor,
+  emptySplit,
+  splitsTotalUSD,
+  toSplitPayload,
+  type SplitRow,
+} from "@/components/payments/payment-splits-editor";
 
 type Subscription = { id: string; planName: string; priceLocked: number | string };
 type Client = { id: string; firstName: string; lastName: string; subscriptions: Subscription[] };
@@ -19,7 +24,7 @@ function nowLocal(): string {
   return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
 }
 
-export function NewPaymentForm({ clients }: { clients: Client[] }) {
+export function NewPaymentForm({ clients, rate = 0 }: { clients: Client[]; rate?: number }) {
   const router = useRouter();
   const [clientId, setClientId] = useState<string>(clients[0]?.id ?? "");
 
@@ -28,31 +33,35 @@ export function NewPaymentForm({ clients }: { clients: Client[] }) {
     [clientId, clients],
   );
   const [subscriptionId, setSubscriptionId] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
-  const [method, setMethod] = useState<(typeof METHODS)[number]>("ZELLE");
-  const [reference, setReference] = useState("");
+  const [splits, setSplits] = useState<SplitRow[]>([emptySplit(rate)]);
   const [paidAt, setPaidAt] = useState(nowLocal());
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const targetUSD = useMemo(() => {
+    const sub = subscriptions.find((s) => s.id === subscriptionId);
+    return sub ? Number(sub.priceLocked) : undefined;
+  }, [subscriptionId, subscriptions]);
+
   function onClientChange(id: string) {
     setClientId(id);
     setSubscriptionId("");
-    setAmount("");
   }
 
   function onSubscriptionChange(id: string) {
     setSubscriptionId(id);
     const sub = subscriptions.find((s) => s.id === id);
-    if (sub && !amount) setAmount(String(Number(sub.priceLocked)));
+    if (sub && splitsTotalUSD(splits) === 0) {
+      setSplits([{ ...emptySplit(rate), amountUSD: String(Number(sub.priceLocked)) }]);
+    }
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!clientId) return toast.error("Selecciona un cliente");
-    if (!amount || Number(amount) <= 0) return toast.error("Monto inválido");
+    if (splitsTotalUSD(splits) <= 0) return toast.error("Indica el pago");
     setLoading(true);
     const res = await fetch("/api/pagos", {
       method: "POST",
@@ -60,9 +69,7 @@ export function NewPaymentForm({ clients }: { clients: Client[] }) {
       body: JSON.stringify({
         clientId,
         subscriptionId: subscriptionId || null,
-        amount: Number(amount),
-        method,
-        reference: reference || null,
+        splits: toSplitPayload(splits),
         paidAt: paidAt ? new Date(paidAt).toISOString() : null,
         periodStart: periodStart ? new Date(periodStart).toISOString() : null,
         periodEnd: periodEnd ? new Date(periodEnd).toISOString() : null,
@@ -73,7 +80,7 @@ export function NewPaymentForm({ clients }: { clients: Client[] }) {
     setLoading(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      return toast.error(data.error?.toString?.() ?? "No se pudo registrar el pago");
+      return toast.error(typeof data.error === "string" ? data.error : "No se pudo registrar el pago");
     }
     const created = await res.json();
     toast.success("Pago registrado como confirmado");
@@ -111,24 +118,16 @@ export function NewPaymentForm({ clients }: { clients: Client[] }) {
             ))}
           </select>
         </div>
-        <div>
-          <Label>Monto (USD)</Label>
-          <Input type="number" step="0.01" min="0" required value={amount} onChange={(e) => setAmount(e.target.value)} />
-        </div>
-        <div>
-          <Label>Método</Label>
-          <select className={selectCls} value={method} onChange={(e) => setMethod(e.target.value as any)}>
-            {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
-          </select>
-        </div>
-        <div>
-          <Label>Referencia</Label>
-          <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="# confirmación, hash…" />
-        </div>
+      </div>
+
+      <PaymentSplitsEditor splits={splits} onChange={setSplits} rate={rate} targetUSD={targetUSD} />
+
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>Fecha de pago</Label>
           <Input type="datetime-local" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} />
         </div>
+        <div />
         <div>
           <Label>Período inicio <span className="text-xs text-muted-foreground">(opcional)</span></Label>
           <Input type="datetime-local" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} />
