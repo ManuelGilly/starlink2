@@ -4,8 +4,20 @@
 > Última actualización: **2026-06-08**
 
 ## Snapshot actual
-- **Rama:** `feat/costo-real-lote-ganancia` (trabajo en curso, basada en `main`)
-- **Último commit en main:** `5c39ebb` (2026-05-18) — *feat: Notificaciones reales + Equipos/Antenas + Soporte/Tickets + Timeline CRM*
+- **Rama:** `main` (todo fusionado y **desplegado en producción**).
+- **Producción:** https://starlink2.vercel.app (Vercel, proyecto `starlink2`, DB Neon). Deploy automático al pushear `main`.
+- **Push a GitHub:** requiere token fine-grained con permiso *Contents: Read/write* sobre `starlink2` (se usó uno temporal; revisar que esté revocado).
+
+## ✅ Sesión 2026-06-08 — completado y desplegado
+1. **Feature costo por lote + ganancia + pago multi-método** (ver más abajo). Migración aplicada en local (5435) y en Neon producción.
+2. **Optimización de navegación (UX):** sidebar reagrupado por modelo mental (Principal · Ventas y cobros · Catálogo e inventario · Clientes · Marketing · Configuración), secciones **colapsables** (solo abre la activa), tipografía más liviana. `src/components/layout/sidebar.tsx`.
+3. **Productos simplificado:** quitado el campo "Costo" manual (se calcula desde Compras/Lotes); API inicializa costPrice en 0.
+4. **Aviso Telegram de suscripciones por vencer (próx. 5 días):** `src/jobs/expiring-subscriptions.ts` + `src/app/api/cron/expiring-subscriptions/route.ts` (protegido CRON_SECRET, acepta `?days=` y `?secret=`) + cron diario 13:30 UTC en `vercel.json`. **Probado en producción: Telegram entrega OK** (token/adminChat/canal habilitados en Vercel). Define "vencer" = `billingDay` dentro de la ventana.
+   - Para disparar manual: `GET /api/cron/expiring-subscriptions?secret=$CRON_SECRET&days=5`.
+   - Endpoint temporal de seed de prueba: creado, usado y **eliminado** (datos demo limpiados).
+
+## ⚠️ Observación importante (data de producción)
+- La DB **Neon de producción tiene 0 suscripciones activas** (verificado con ventana de 30 días). Si el usuario espera tener clientes/suscripciones reales, su data operativa podría estar en otra base. **Pendiente aclarar** dónde vive la data real (la `./data/postgres` local estaba en estado may-4, ahora migrada).
 
 ## Entorno (resuelto)
 - **DB del proyecto levantada:** contenedor `starlink_postgres` (postgres:16-alpine) corriendo en **host 5435** (el 5433 lo ocupa el compartido `pg-shared`), datos en bind-mount `./data/postgres`, arrancado con `-u $(id -u):$(id -g)`. `.env` actualizado a **5435** + `DIRECT_URL`.
@@ -14,8 +26,8 @@
 - El entorno tiene Node v12 en el sistema (sirve solo Docker `node:22`). Para correr Prisma/Next se usó `docker run ... node:22`.
 - ⚠️ Si tu data "real" de mayo (equipos/ventas/marketing) estaba en otro postgres (p.ej. pg-shared con otras credenciales), avísame: esta `./data/postgres` estaba en estado may-4 y ahora quedó al día con el código.
 
-## 🚧 Feature en curso: Costo real por lote + ganancia + pago multi-método
-Plan: `~/.claude/plans/smooth-shimmying-breeze.md`. **Implementado y verificado** (tsc + `next build` + e2e a nivel de datos en shadow):
+## ✅ Feature: Costo real por lote + ganancia + pago multi-método (DESPLEGADO)
+Plan: `~/.claude/plans/smooth-shimmying-breeze.md`. **Implementado, verificado y en producción** (tsc + `next build` + e2e a nivel de datos en shadow):
 - **Schema + migración** con backfill (Product.serialized; PurchaseLot+ChargeMode; Equipment como unidad serializada con landedCost/availability/lot/saleItem; SaleItem.unitCostSnapshot/costTotal+unit; Payment.saleId + PaymentSplit).
 - **Compras/Lotes** (`/compras`): API `api/compras` + form que resuelve flete/impuesto (fijo o %, % sobre base), calcula costo landed, crea unidades serializadas y cachea `Product.costPrice`. Nav nuevo "Compras / Lotes".
 - **Editor de splits compartido** (`components/payments/payment-splits-editor.tsx`) + libs `lib/payments/{methods,splits,rate}.ts`. Métodos en Bs (Pago Móvil) piden monto Bs + tasa (snapshot).
@@ -24,11 +36,11 @@ Plan: `~/.claude/plans/smooth-shimmying-breeze.md`. **Implementado y verificado*
 - **Métricas** (`lib/metrics`, `lib/marketing/metrics`) usan COGS real (snapshot/landed); valuación de inventario serializado por unidades. Contrato móvil `amount/starlinkCost/priceLocked` intacto.
 - Flag `serialized` editable en alta/edición de producto.
 
-### Próximo en este feature (follow-ups)
-- [ ] Aplicar la migración a la DB real (ver pendiente operativo).
-- [ ] Probar en navegador con el dev server (login admin → registrar lote → vender unidad con pago dividido → ver ganancia).
-- [ ] (Opcional) Convertir `PlanRequest` (solicitud-activación) en Payment al procesarla — última pieza de consolidación, no hecha aún.
-- [ ] (Opcional) `byMethod` en `metrics.ts` agrupa por `Payment.method`; con multi-método conviene `groupBy(PaymentSplit.method)`.
+### Follow-ups pendientes (opcionales)
+- [ ] Probar el flujo completo en producción con datos reales (login admin → registrar lote → vender unidad con pago dividido → ver ganancia).
+- [ ] Convertir `PlanRequest` (solicitud-activación) en Payment al procesarla — última pieza de consolidación.
+- [ ] `byMethod` en `metrics.ts` agrupa por `Payment.method`; con multi-método conviene `groupBy(PaymentSplit.method)`.
+- [ ] Más optimización UX si se pide: topbar/breadcrumbs, densidad del dashboard, aligerar forms de Venta y Lote.
 
 ## Qué hay funcionando (módulos)
 - **Auth/RBAC** — NextAuth con roles ADMIN / INVENTARIO / CLIENTE
@@ -44,17 +56,28 @@ Plan: `~/.claude/plans/smooth-shimmying-breeze.md`. **Implementado y verificado*
 - **Jobs** — node-cron: proyección de déficit + recordatorios de cobro
 
 ## Próximos pasos / pendientes
-- [ ] (pendiente de definir — anotar aquí la próxima tarea al retomar)
+- [ ] Aclarar dónde vive la data real de producción (Neon está casi vacío — 0 suscripciones).
+- [ ] Follow-ups opcionales del feature (ver arriba).
 
 ## Notas / decisiones abiertas
-- (vacío)
+- Telegram del admin **configurado y funcionando** en producción (token + chat id + canal habilitado en Vercel).
 
-## Cómo arrancar
+## Cómo arrancar (entorno real de este equipo)
 ```bash
+# Node del sistema es v12 → usar Docker node:22 para Prisma/Next.
+# La DB del proyecto corre en el contenedor starlink_postgres → host 5435
+#   (el 5433 lo ocupa el compartido pg-shared). .env ya apunta a 5435.
 cd "claude starlink/claude starlink"   # el repo está anidado
-npm install
-docker compose up -d                   # Postgres local
-npm run db:migrate && npm run db:seed
-npm run dev                            # http://localhost:3000
-npm run jobs                          # (opcional) cron en background
+
+# arrancar la DB del proyecto (si el contenedor no está corriendo):
+docker run -d --name starlink_postgres --restart unless-stopped \
+  -u "$(id -u):$(id -g)" -e POSTGRES_DB=starlink_ve -e POSTGRES_USER=starlink \
+  -e POSTGRES_PASSWORD=starlink -p 5435:5432 \
+  -v "$PWD/data/postgres":/var/lib/postgresql/data postgres:16-alpine
+
+# correr comandos Node vía Docker (red host para llegar a la DB):
+docker run --rm --network host -u "$(id -u):$(id -g)" -e HOME=/tmp \
+  -v "$PWD":/app -w /app node:22 npx next dev   # o: prisma migrate deploy / tsc --noEmit
+
+# Deploy a producción: push a main → Vercel auto-despliega (corre prisma migrate deploy).
 ```
