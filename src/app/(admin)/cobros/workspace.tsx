@@ -29,6 +29,8 @@ export type Row = {
   planName: string;
   planCost: number;
   priceLocked: number;
+  purchaseMonth: string; // ISO de startDate (fecha de compra/activación)
+  isFreeMonth: boolean;  // este período es el primer mes gratis
   pago: {
     id: string;
     amount: number;
@@ -62,7 +64,13 @@ export function CobrosWorkspace({ rows, year, month, periodoInicio, periodoFin, 
   const totalCobrado = rows.reduce((acc, r) => acc + (r.pago?.amount ?? 0), 0);
   const totalStarlink = rows.reduce((acc, r) => acc + (r.pago?.starlinkCost ?? 0), 0);
   const totalGanancia = totalCobrado - totalStarlink;
-  const sinPago = rows.filter((r) => !r.pago).length;
+  // Los meses gratis no cuentan como "sin pago": están cubiertos por el beneficio.
+  const sinPago = rows.filter((r) => !r.pago && !r.isFreeMonth).length;
+
+  function mesCompra(iso: string) {
+    const d = new Date(iso);
+    return `${MESES[d.getMonth()].slice(0, 3)} ${d.getFullYear()}`;
+  }
 
   return (
     <div className="p-6 space-y-4">
@@ -142,6 +150,7 @@ export function CobrosWorkspace({ rows, year, month, periodoInicio, periodoFin, 
             <TableHeader>
               <TableRow>
                 <TableHead>Cliente</TableHead>
+                <TableHead>Mes compra</TableHead>
                 <TableHead>Plan</TableHead>
                 <TableHead className="text-right">Precio plan</TableHead>
                 <TableHead className="text-right">Pagó cliente</TableHead>
@@ -160,6 +169,9 @@ export function CobrosWorkspace({ rows, year, month, periodoInicio, periodoFin, 
                 return (
                   <TableRow key={row.subscriptionId}>
                     <TableCell className="font-medium">{row.clientName}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                      {mesCompra(row.purchaseMonth)}
+                    </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {row.planName}
                     </TableCell>
@@ -188,12 +200,14 @@ export function CobrosWorkspace({ rows, year, month, periodoInicio, periodoFin, 
                     <TableCell>
                       {row.pago ? (
                         <Badge variant="success">CONFIRMADO</Badge>
+                      ) : row.isFreeMonth ? (
+                        <Badge variant="outline">MES GRATIS</Badge>
                       ) : (
                         <Badge variant="secondary">SIN PAGO</Badge>
                       )}
                     </TableCell>
                     <TableCell>
-                      {!row.pago && (
+                      {!row.pago && !row.isFreeMonth && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -209,7 +223,7 @@ export function CobrosWorkspace({ rows, year, month, periodoInicio, periodoFin, 
               {rows.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={9}
                     className="py-8 text-center text-muted-foreground"
                   >
                     No hay suscripciones activas

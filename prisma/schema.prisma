@@ -271,6 +271,8 @@ model Subscription {
   billingDay  Int      @default(1)
   // Precio pactado (puede diferir del plan.price si hubo descuento)
   priceLocked Decimal  @db.Decimal(12, 2)
+  // Beneficio: el primer mes (mes de startDate) es gratis ($0), se marca al activar
+  firstMonthFree Boolean @default(false)
 
   notes       String?
   origin      SaleOrigin  @default(ORGANICO)

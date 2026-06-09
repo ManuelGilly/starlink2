@@ -14,6 +14,7 @@ export function AssignPlanForm({ clientId, plans, campaigns = [] }: { clientId: 
   const [planId, setPlanId] = useState(plans[0]?.id ?? "");
   const [priceLocked, setPrice] = useState("");
   const [billingDay, setDay] = useState(1);
+  const [firstMonthFree, setFirstMonthFree] = useState(false);
   const [origin, setOrigin] = useState("ORGANICO");
   const [campaignId, setCampaignId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,7 @@ export function AssignPlanForm({ clientId, plans, campaigns = [] }: { clientId: 
         planId,
         priceLocked: priceLocked || undefined,
         billingDay,
+        firstMonthFree,
         origin,
         campaignId: campaignId || undefined,
       }),
@@ -56,6 +58,15 @@ export function AssignPlanForm({ clientId, plans, campaigns = [] }: { clientId: 
           <Label>Día de cobro</Label>
           <Input type="number" min={1} max={28} value={billingDay} onChange={(e) => setDay(Number(e.target.value))} />
         </div>
+        <label className="flex items-center gap-2 pb-2 text-sm cursor-pointer select-none">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded border-input"
+            checked={firstMonthFree}
+            onChange={(e) => setFirstMonthFree(e.target.checked)}
+          />
+          <span>Primer mes gratis</span>
+        </label>
       </div>
       <div className="flex flex-wrap items-end gap-3">
         <div>

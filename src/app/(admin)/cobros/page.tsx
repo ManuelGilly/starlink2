@@ -32,7 +32,7 @@ export default async function CobrosPage({
   const subscriptions = await prisma.subscription.findMany({
     where: { status: "ACTIVA" },
     include: { client: true, plan: true },
-    orderBy: [{ client: { lastName: "asc" } }],
+    orderBy: [{ startDate: "asc" }, { client: { lastName: "asc" } }],
   });
 
   const subIds = subscriptions.map((s) => s.id);
@@ -54,6 +54,11 @@ export default async function CobrosPage({
 
   const rows = subscriptions.map((sub) => {
     const pago = pagosPorSub[sub.id] ?? null;
+    // El primer mes (mes de startDate) es gratis si la suscripción lo tiene marcado.
+    const isFreeMonth =
+      sub.firstMonthFree &&
+      sub.startDate.getFullYear() === year &&
+      sub.startDate.getMonth() + 1 === month;
     return {
       subscriptionId: sub.id,
       clientId: sub.clientId,
@@ -61,6 +66,8 @@ export default async function CobrosPage({
       planName: sub.plan.name,
       planCost: sub.plan.cost != null ? Number(sub.plan.cost) : 0,
       priceLocked: Number(sub.priceLocked),
+      purchaseMonth: sub.startDate.toISOString(),
+      isFreeMonth,
       pago: pago
         ? {
             id: pago.id,
