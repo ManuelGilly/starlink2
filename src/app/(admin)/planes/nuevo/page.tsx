@@ -49,8 +49,16 @@ export default function NuevoPlanPage() {
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Código</Label><Input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></div>
               <div><Label>Nombre</Label><Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-              <div><Label>Precio (USD)</Label><Input type="number" step="0.01" required value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
-              <div><Label>Costo estimado (USD)</Label><Input type="number" step="0.01" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} /></div>
+              <div>
+                <Label>Precio de venta (USD)</Label>
+                <Input type="number" step="0.01" required value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+                <p className="mt-1 text-[11px] text-muted-foreground">Lo que le cobras al cliente.</p>
+              </div>
+              <div>
+                <Label>Costo (USD)</Label>
+                <Input type="number" step="0.01" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} />
+                <p className="mt-1 text-[11px] text-muted-foreground">Lo que te cuesta a ti (a Starlink).</p>
+              </div>
               <div>
                 <Label>Ciclo de facturación</Label>
                 <select
