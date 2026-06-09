@@ -29,9 +29,26 @@
   - `src/app/(admin)/clientes/[id]/page.tsx`: flags `SHOW_TICKETS_SECTION` y `SHOW_CRM_SECTION` (ambos `false`) envuelven cada `<Card>`. Para reactivar, poner el flag en `true` (la lógica/queries siguen intactas).
   - Verificado `tsc` ✓ + `next build` ✓. **DESPLEGADO ✓**: commit `ecb421c` (`72a728d..ecb421c`) pusheado a `main` (push ya sin pedir token, credential store OK).
 
+## 🆕 Sesión 2026-06-08 (cont.) — Dashboard: atribución mensual por fecha real
+- **Problema:** el dashboard sumaba en el mes en curso pagos/ventas de otros meses cargados ahora (usaba `Payment.confirmedAt` y `Sale.createdAt` = fecha de registro).
+- **Fix (decisión del usuario: "período que cubre / fecha de venta"):**
+  - Pagos (`src/lib/metrics.ts`): atribución por **`periodStart ?? paidAt ?? confirmedAt`**. Afecta facturación mes/año/30d/prev30, ganancia bruta mes y serie mensual 12m. Se eliminaron los 4 `aggregate` por `confirmedAt` y se calcula en JS sobre `confirmedPayments12m` (query ampliada con `periodStart`/`paidAt` y `OR` de fechas).
+  - Ventas (`src/app/(admin)/dashboard/page.tsx`): "Ventas mes" por **`paidAt ?? createdAt`** (findMany + reduce en vez de aggregate por createdAt).
+  - `tsc` ✓ + `next build` ✓. **DESPLEGADO ✓** commit `a487360`.
+  - Nota: el form de venta ya acepta fechas pasadas (occurredAt→createdAt/paidAt); cobros fija `periodStart` según el mes navegado. Para que lo histórico caiga en su mes, registrar con la fecha real.
+
+## ✅ Feature cobros: mes de compra + primer mes gratis (DESPLEGADO, commit `cac2a33`)
+- `Subscription.firstMonthFree` + migración `20260608140000_subscription_first_month_free` (local 5435 ✓; Neon se aplica en el deploy). Checkbox "Primer mes gratis" en `assign-plan.tsx` → API `api/clientes/[id]/subscripciones`.
+- Cobros (`page.tsx`/`workspace.tsx`): columna **"Mes compra"** (=`startDate`), orden por fecha de compra; el primer mes (mes de `startDate`) muestra **"MES GRATIS"** ($0) automático, no pide cobro ni cuenta como "sin pago". Decisiones del usuario aplicadas: listado = columna+orden; fecha base = `startDate`; mes gratis = solo check al activar.
+
+## ✅ Planes: rótulos aclarados (DESPLEGADO, commit `04ed685`)
+- Form de plan (`planes/[id]/edit-form.tsx` y `planes/nuevo`): ahora **"Precio de venta (USD)" = lo que cobras al cliente** y **"Costo (USD)" = lo que te cuesta (a Starlink)**, con texto de ayuda. Evita invertir los campos.
+- ⚠️ PENDIENTE (data en producción): el usuario tenía los valores invertidos en Neon. Para corregir: intercambiar `price`↔`cost` en los planes afectados y decidir si actualizar `priceLocked` de suscripciones activas. **Recordar el modelo de snapshots:** cambiar el plan NO recalcula suscripciones (usan `priceLocked`) ni pagos/ventas ya registrados (guardan su monto); solo afecta nuevas asignaciones. Requiere acceso a Neon o que lo haga el usuario.
+
 ## ✅ Decisión: se trabaja TODO sobre PRODUCCIÓN (Neon)
 - El usuario confirmó (2026-06-08) que la data operativa real vive en **Neon producción**, NO en la DB local 5435 (esa es demo may-4: 5 clientes ficticios — Carlos R., Ana **Pérez**, Luis M., Patricia H., Ricardo L. — y 0 equipos).
-- Para operar sobre Neon (p.ej. asignar el equipo serial **KIT4M01116507RDD** a la clienta **Ana Covadonga**, que no existen en local) hace falta el `DATABASE_URL` de Neon. **No hay `vercel` CLI ni `.env.production.local` aquí** → pedido al usuario que lo provea (Vercel → starlink2 → Settings → Environment Variables → DATABASE_URL) en un `.env.production.local` temporal. **Tarea KIT4M…→Ana Covadonga queda en espera de ese acceso.**
+- Para operar directamente sobre Neon haría falta su `DATABASE_URL` (no hay `vercel` CLI ni `.env.production.local` aquí). De momento no se necesita: el flujo de trabajo es **editar código → push a `main` → Vercel despliega**.
+- ~~Tarea KIT4M01116507RDD → Ana Covadonga~~: **descartada por el usuario (no continuar).**
 
 ## Entorno (resuelto)
 - **DB del proyecto levantada:** contenedor `starlink_postgres` (postgres:16-alpine) corriendo en **host 5435** (el 5433 lo ocupa el compartido `pg-shared`), datos en bind-mount `./data/postgres`, arrancado con `-u $(id -u):$(id -g)`. `.env` actualizado a **5435** + `DIRECT_URL`.
