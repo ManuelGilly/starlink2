@@ -73,7 +73,7 @@ export default async function DashboardPage() {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [data, recentPayments, recentSales, salesMonthAgg, salesCountMonth] = await Promise.all([
+  const [data, recentPayments, recentSales, salesThisMonth] = await Promise.all([
     getDashboardData(),
     prisma.payment.findMany({
       include: { client: true },
@@ -85,13 +85,20 @@ export default async function DashboardPage() {
       orderBy: { createdAt: "desc" },
       take: 8,
     }),
-    prisma.sale.aggregate({
-      _sum: { total: true },
-      where: { createdAt: { gte: monthStart } },
+    // Ventas del mes por su fecha real (paidAt); si no tiene, la de registro.
+    // Evita que ventas de otros meses cargadas ahora se sumen al mes en curso.
+    prisma.sale.findMany({
+      where: {
+        OR: [
+          { paidAt: { gte: monthStart } },
+          { paidAt: null, createdAt: { gte: monthStart } },
+        ],
+      },
+      select: { total: true },
     }),
-    prisma.sale.count({ where: { createdAt: { gte: monthStart } } }),
   ]);
-  const salesTotalMonth = Number(salesMonthAgg._sum.total ?? 0);
+  const salesTotalMonth = salesThisMonth.reduce((acc, s) => acc + Number(s.total), 0);
+  const salesCountMonth = salesThisMonth.length;
 
   const {
     kpis, monthly, byMethod, byStatus, byPlan, topClients, inventory, alerts,

@@ -81,10 +81,6 @@ export async function getDashboardData(): Promise<DashboardData> {
   const warningSoon = new Date(now); warningSoon.setDate(now.getDate() + 30);
 
   const [
-    billingMonthAgg,
-    billingYearAgg,
-    billingLast30Agg,
-    billingPrev30Agg,
     pendingAgg,
     reportedCount,
     purchasesThisMonth,
@@ -101,22 +97,6 @@ export async function getDashboardData(): Promise<DashboardData> {
     warranties,
     overdueSubs,
   ] = await Promise.all([
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: { status: "CONFIRMADO", confirmedAt: { gte: monthStart } },
-    }),
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: { status: "CONFIRMADO", confirmedAt: { gte: yearStart } },
-    }),
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: { status: "CONFIRMADO", confirmedAt: { gte: last30 } },
-    }),
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: { status: "CONFIRMADO", confirmedAt: { gte: prev30, lt: last30 } },
-    }),
     prisma.payment.aggregate({
       _sum: { amount: true },
       _count: true,
@@ -148,8 +128,18 @@ export async function getDashboardData(): Promise<DashboardData> {
       where: { status: "ACTIVA" },
     }),
     prisma.payment.findMany({
-      where: { status: "CONFIRMADO", confirmedAt: { gte: last12mStart } },
-      select: { amount: true, confirmedAt: true },
+      // Atribución por la fecha real del movimiento (período que cubre / pago),
+      // no por cuándo se confirmó en el sistema. Capturamos por cualquier fecha
+      // para no perder pagos cargados con retraso.
+      where: {
+        status: "CONFIRMADO",
+        OR: [
+          { periodStart: { gte: last12mStart } },
+          { paidAt: { gte: last12mStart } },
+          { confirmedAt: { gte: last12mStart } },
+        ],
+      },
+      select: { amount: true, confirmedAt: true, periodStart: true, paidAt: true },
     }),
     prisma.inventoryMovement.findMany({
       where: { type: "ENTRADA", occurredAt: { gte: last12mStart } },
@@ -255,10 +245,25 @@ export async function getDashboardData(): Promise<DashboardData> {
     0,
   );
 
-  const billingMonth = Number(billingMonthAgg._sum.amount ?? 0);
-  const billingYear = Number(billingYearAgg._sum.amount ?? 0);
-  const billingLast30 = Number(billingLast30Agg._sum.amount ?? 0);
-  const billingPrev30 = Number(billingPrev30Agg._sum.amount ?? 0);
+  // Fecha que define a qué mes pertenece un pago: el período que cubre
+  // (periodStart), o la fecha en que se pagó (paidAt), y solo como respaldo
+  // la de confirmación. Evita que pagos cargados con retraso se sumen al mes en curso.
+  const effPaymentDate = (p: { periodStart: Date | null; paidAt: Date | null; confirmedAt: Date | null }) =>
+    p.periodStart ?? p.paidAt ?? p.confirmedAt ?? null;
+
+  let billingMonth = 0;
+  let billingYear = 0;
+  let billingLast30 = 0;
+  let billingPrev30 = 0;
+  for (const pay of confirmedPayments12m) {
+    const d = effPaymentDate(pay);
+    if (!d) continue;
+    const amt = Number(pay.amount);
+    if (d >= monthStart) billingMonth += amt;
+    if (d >= yearStart) billingYear += amt;
+    if (d >= last30) billingLast30 += amt;
+    if (d >= prev30 && d < last30) billingPrev30 += amt;
+  }
 
   // ---- Serie mensual últimos 12 meses ----
   const monthlyMap = new Map<string, MonthlySeries>();
@@ -268,8 +273,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     monthlyMap.set(key, { month: key, monthLabel: MONTH_NAMES_ES[d.getMonth()], billing: 0, purchases: 0, profit: 0 });
   }
   for (const pay of confirmedPayments12m) {
-    if (!pay.confirmedAt) continue;
-    const d = pay.confirmedAt;
+    const d = effPaymentDate(pay);
+    if (!d) continue;
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const row = monthlyMap.get(key);
     if (row) row.billing += Number(pay.amount);
