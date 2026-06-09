@@ -16,8 +16,16 @@
    - Para disparar manual: `GET /api/cron/expiring-subscriptions?secret=$CRON_SECRET&days=5`.
    - Endpoint temporal de seed de prueba: creado, usado y **eliminado** (datos demo limpiados).
 
-## ⚠️ Observación importante (data de producción)
-- La DB **Neon de producción tiene 0 suscripciones activas** (verificado con ventana de 30 días). Si el usuario espera tener clientes/suscripciones reales, su data operativa podría estar en otra base. **Pendiente aclarar** dónde vive la data real (la `./data/postgres` local estaba en estado may-4, ahora migrada).
+## 🆕 Sesión 2026-06-08 (cont.) — Edición y borrado de equipos
+- **`/equipos` ahora permite editar y borrar** los registros ya cargados (antes la tabla era solo lectura).
+  - **API** `src/app/api/equipos/[id]/route.ts`: añadido `DELETE` (rol **ADMIN**, con audit; bloquea 409 si el equipo está asociado a una venta `saleItemId`, o FK P2003 → sugiere desactivar). `PATCH` ahora también audita y maneja serial duplicado (P2002 → 409).
+  - **UI** nuevo client component `src/app/(admin)/equipos/equipment-table.tsx` (reemplaza la tabla inline de `page.tsx`): columna "Acciones" con **Editar** (panel inline expandible reutilizando los campos del alta) y **Borrar** (con `confirm()`). `page.tsx` pasa `equipment`/`clients` serializados.
+  - Verificado: `tsc --noEmit` ✓ y `next build` ✓.
+  - **Pendiente desplegar**: push a `main` (requiere token GitHub) para que Vercel lo publique en producción.
+
+## ✅ Decisión: se trabaja TODO sobre PRODUCCIÓN (Neon)
+- El usuario confirmó (2026-06-08) que la data operativa real vive en **Neon producción**, NO en la DB local 5435 (esa es demo may-4: 5 clientes ficticios — Carlos R., Ana **Pérez**, Luis M., Patricia H., Ricardo L. — y 0 equipos).
+- Para operar sobre Neon (p.ej. asignar el equipo serial **KIT4M01116507RDD** a la clienta **Ana Covadonga**, que no existen en local) hace falta el `DATABASE_URL` de Neon. **No hay `vercel` CLI ni `.env.production.local` aquí** → pedido al usuario que lo provea (Vercel → starlink2 → Settings → Environment Variables → DATABASE_URL) en un `.env.production.local` temporal. **Tarea KIT4M…→Ana Covadonga queda en espera de ese acceso.**
 
 ## Entorno (resuelto)
 - **DB del proyecto levantada:** contenedor `starlink_postgres` (postgres:16-alpine) corriendo en **host 5435** (el 5433 lo ocupa el compartido `pg-shared`), datos en bind-mount `./data/postgres`, arrancado con `-u $(id -u):$(id -g)`. `.env` actualizado a **5435** + `DIRECT_URL`.

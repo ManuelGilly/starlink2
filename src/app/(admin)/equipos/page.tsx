@@ -1,26 +1,10 @@
-import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Topbar } from "@/components/layout/topbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatDate, formatUSD } from "@/lib/utils";
 import { NewEquipmentForm } from "./new-equipment-form";
+import { EquipmentTable } from "./equipment-table";
 
 export const dynamic = "force-dynamic";
-
-const CONDITION_LABEL: Record<string, string> = {
-  NUEVO: "Nuevo",
-  USADO: "Usado",
-  DANADO: "Dañado",
-  DADO_DE_BAJA: "Dado de baja",
-};
-const CONDITION_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  NUEVO: "default",
-  USADO: "secondary",
-  DANADO: "destructive",
-  DADO_DE_BAJA: "outline",
-};
 
 export default async function EquiposPage() {
   const [equipment, clients] = await Promise.all([
@@ -68,55 +52,10 @@ export default async function EquiposPage() {
         <Card>
           <CardHeader><CardTitle>Inventario de equipos ({equipment.length})</CardTitle></CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Modelo</TableHead>
-                  <TableHead>Nº Serie</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Cliente asignado</TableHead>
-                  <TableHead>Compra</TableHead>
-                  <TableHead>Costo</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {equipment.map((e) => (
-                  <TableRow key={e.id}>
-                    <TableCell className="font-medium">{e.model}</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {e.serialNumber ?? "—"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={CONDITION_VARIANT[e.condition] ?? "outline"}>
-                        {CONDITION_LABEL[e.condition] ?? e.condition}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {e.client ? (
-                        <Link href={`/clientes/${e.client.id}`} className="hover:underline text-sm">
-                          {e.client.firstName} {e.client.lastName}
-                        </Link>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">Sin asignar</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {e.purchaseDate ? formatDate(e.purchaseDate) : "—"}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {e.purchasePrice ? formatUSD(Number(e.purchasePrice)) : "—"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {equipment.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
-                      Sin equipos registrados
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+            <EquipmentTable
+              equipment={JSON.parse(JSON.stringify(equipment))}
+              clients={JSON.parse(JSON.stringify(clients))}
+            />
           </CardContent>
         </Card>
       </div>
