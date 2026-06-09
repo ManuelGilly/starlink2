@@ -24,6 +24,11 @@
   - **DESPLEGADO ✓** (2026-06-08): commit `72a728d` pusheado a `main` (`331bc88..72a728d`) → Vercel auto-construye. Producción HTTP 200.
   - **Push sin fricción a futuro:** el token GitHub quedó en el git credential store (`~/.git-credentials` 600 + `credential.helper store`); `git push origin main` ya no pide token. Ver [[starlink-ve-deploy]].
 
+## 🆕 Sesión 2026-06-08 (cont.) — Ocultar secciones en ficha de cliente
+- En `/clientes/[id]` se **ocultaron de pantalla** las secciones **"Tickets de soporte"** y **"Notas e historial CRM"**.
+  - `src/app/(admin)/clientes/[id]/page.tsx`: flags `SHOW_TICKETS_SECTION` y `SHOW_CRM_SECTION` (ambos `false`) envuelven cada `<Card>`. Para reactivar, poner el flag en `true` (la lógica/queries siguen intactas).
+  - Verificado `tsc` ✓ + `next build` ✓. **DESPLEGADO ✓**: commit `ecb421c` (`72a728d..ecb421c`) pusheado a `main` (push ya sin pedir token, credential store OK).
+
 ## ✅ Decisión: se trabaja TODO sobre PRODUCCIÓN (Neon)
 - El usuario confirmó (2026-06-08) que la data operativa real vive en **Neon producción**, NO en la DB local 5435 (esa es demo may-4: 5 clientes ficticios — Carlos R., Ana **Pérez**, Luis M., Patricia H., Ricardo L. — y 0 equipos).
 - Para operar sobre Neon (p.ej. asignar el equipo serial **KIT4M01116507RDD** a la clienta **Ana Covadonga**, que no existen en local) hace falta el `DATABASE_URL` de Neon. **No hay `vercel` CLI ni `.env.production.local` aquí** → pedido al usuario que lo provea (Vercel → starlink2 → Settings → Environment Variables → DATABASE_URL) en un `.env.production.local` temporal. **Tarea KIT4M…→Ana Covadonga queda en espera de ese acceso.**
