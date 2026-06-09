@@ -1,12 +1,18 @@
 # ESTADO DEL PROYECTO — Starlink Venezuela
 
 > Documento de continuidad. Se actualiza al terminar cada tarea para no perder el foco.
-> Última actualización: **2026-06-08**
+> Última actualización: **2026-06-09**
 
 ## Snapshot actual
-- **Rama:** `main` (todo fusionado y **desplegado en producción**).
+- **Rama:** `main` (todo fusionado y **desplegado en producción**). Último commit: `84ed558`.
 - **Producción:** https://starlink2.vercel.app (Vercel, proyecto `starlink2`, DB Neon). Deploy automático al pushear `main`.
-- **Push a GitHub:** requiere token fine-grained con permiso *Contents: Read/write* sobre `starlink2` (se usó uno temporal; revisar que esté revocado).
+- **Push a GitHub:** YA NO pide token — quedó en el git credential store (`~/.git-credentials` 600 + `credential.helper store`). `git push origin main` funciona solo. Ver [[starlink-ve-deploy]].
+
+## 🔜 PRÓXIMO AL RETOMAR (pendiente abierto)
+- **Corregir datos de planes invertidos en Neon (producción).** El usuario cargó los planes al revés: su costo en "Precio" y la venta en "Costo". Los rótulos del form ya se aclararon (commit `04ed685`), pero la DATA existente sigue invertida. Opciones: (a) el usuario intercambia los valores desde `/planes`; (b) yo lo corrijo por SQL en Neon (intercambiar `price`↔`cost`) — necesita `DATABASE_URL` de Neon (no disponible localmente). ⚠️ Por el modelo de **snapshots**, corregir el plan NO recalcula suscripciones activas (usan `priceLocked`) ni pagos/ventas ya registrados; solo afecta nuevas asignaciones. Si se quiere aplicar a suscripciones activas, actualizar su `priceLocked` aparte.
+
+## ✅ Sesión 2026-06-08/09 — completado y desplegado (cobros/dashboard/equipos/planes)
+- **Cobros — filtro por fecha de activación** (commit `84ed558`): la lista solo muestra suscripciones cuya `startDate <= fin del mes navegado`. Ya no aparecen clientes en meses anteriores a la activación de su plan. `src/app/(admin)/cobros/page.tsx` (`where: { status: "ACTIVA", startDate: { lte: periodoFin } }`).
 
 ## ✅ Sesión 2026-06-08 — completado y desplegado
 1. **Feature costo por lote + ganancia + pago multi-método** (ver más abajo). Migración aplicada en local (5435) y en Neon producción.
