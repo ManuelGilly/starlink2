@@ -30,7 +30,9 @@ export default async function CobrosPage({
   const periodoFin = new Date(year, month, 0, 23, 59, 59, 999);
 
   const subscriptions = await prisma.subscription.findMany({
-    where: { status: "ACTIVA" },
+    // Solo las que ya estaban activas en el mes navegado: no cobrar meses
+    // anteriores a la fecha de activación del plan.
+    where: { status: "ACTIVA", startDate: { lte: periodoFin } },
     include: { client: true, plan: true },
     orderBy: [{ startDate: "asc" }, { client: { lastName: "asc" } }],
   });
