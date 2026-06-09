@@ -21,7 +21,8 @@
   - **API** `src/app/api/equipos/[id]/route.ts`: añadido `DELETE` (rol **ADMIN**, con audit; bloquea 409 si el equipo está asociado a una venta `saleItemId`, o FK P2003 → sugiere desactivar). `PATCH` ahora también audita y maneja serial duplicado (P2002 → 409).
   - **UI** nuevo client component `src/app/(admin)/equipos/equipment-table.tsx` (reemplaza la tabla inline de `page.tsx`): columna "Acciones" con **Editar** (panel inline expandible reutilizando los campos del alta) y **Borrar** (con `confirm()`). `page.tsx` pasa `equipment`/`clients` serializados.
   - Verificado: `tsc --noEmit` ✓ y `next build` ✓.
-  - **Pendiente desplegar**: push a `main` (requiere token GitHub) para que Vercel lo publique en producción.
+  - **DESPLEGADO ✓** (2026-06-08): commit `72a728d` pusheado a `main` (`331bc88..72a728d`) → Vercel auto-construye. Producción HTTP 200.
+  - **Push sin fricción a futuro:** el token GitHub quedó en el git credential store (`~/.git-credentials` 600 + `credential.helper store`); `git push origin main` ya no pide token. Ver [[starlink-ve-deploy]].
 
 ## ✅ Decisión: se trabaja TODO sobre PRODUCCIÓN (Neon)
 - El usuario confirmó (2026-06-08) que la data operativa real vive en **Neon producción**, NO en la DB local 5435 (esa es demo may-4: 5 clientes ficticios — Carlos R., Ana **Pérez**, Luis M., Patricia H., Ricardo L. — y 0 equipos).

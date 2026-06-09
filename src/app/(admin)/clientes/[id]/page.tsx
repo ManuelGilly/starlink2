@@ -16,6 +16,10 @@ import { getCurrentUser } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
+// Secciones ocultas de la ficha de cliente (poner en true para reactivarlas).
+const SHOW_TICKETS_SECTION = false;
+const SHOW_CRM_SECTION = false;
+
 const CONDITION_LABEL: Record<string, string> = { NUEVO: "Nuevo", USADO: "Usado", DANADO: "Dañado", DADO_DE_BAJA: "Baja" };
 const STATUS_TICKET: Record<string, string> = { ABIERTO: "Abierto", EN_PROCESO: "En proceso", RESUELTO: "Resuelto", CERRADO: "Cerrado" };
 const PRIORITY_TICKET: Record<string, string> = { BAJA: "Baja", MEDIA: "Media", ALTA: "Alta", URGENTE: "Urgente" };
@@ -151,7 +155,8 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
           </CardContent>
         </Card>
 
-        {/* Tickets de soporte */}
+        {/* Tickets de soporte — oculto (SHOW_TICKETS_SECTION) */}
+        {SHOW_TICKETS_SECTION && (
         <Card>
           <CardHeader><CardTitle>Tickets de soporte ({tickets.filter((t) => t.status !== "CERRADO").length} activos)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -185,8 +190,10 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
             </div>
           </CardContent>
         </Card>
+        )}
 
-        {/* Timeline / Notas CRM */}
+        {/* Timeline / Notas CRM — oculto (SHOW_CRM_SECTION) */}
+        {SHOW_CRM_SECTION && (
         <Card>
           <CardHeader><CardTitle>Notas e historial CRM</CardTitle></CardHeader>
           <CardContent>
@@ -196,6 +203,7 @@ export default async function ClienteDetalle({ params }: { params: { id: string 
             />
           </CardContent>
         </Card>
+        )}
 
         {/* Historial de pagos */}
         <Card>
