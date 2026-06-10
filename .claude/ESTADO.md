@@ -1,10 +1,11 @@
 # ESTADO DEL PROYECTO — Starlink Venezuela
 
 > Documento de continuidad. Se actualiza al terminar cada tarea para no perder el foco.
-> Última actualización: **2026-06-09** (planes invertidos corregidos por el usuario)
+> Última actualización: **2026-06-10** (mejoras UX desplegadas a producción)
 
 ## Snapshot actual
-- **Rama:** `main` (todo fusionado y **desplegado en producción**). Último commit: `84ed558`.
+- **Rama:** `main` (todo fusionado y **desplegado en producción**). Último commit: `f86c8b3` (mejoras UX: breadcrumbs + dashboard compacto + forms plegables).
+- **Sin pendientes bloqueantes.** Lo último (sesión 2026-06-09/10) son mejoras UX ya en producción; ver más abajo. Quedan solo follow-ups opcionales.
 - **Producción:** https://starlink2.vercel.app (Vercel, proyecto `starlink2`, DB Neon). Deploy automático al pushear `main`.
 - **Push a GitHub:** YA NO pide token — quedó en el git credential store (`~/.git-credentials` 600 + `credential.helper store`). `git push origin main` funciona solo. Ver [[starlink-ve-deploy]].
 
