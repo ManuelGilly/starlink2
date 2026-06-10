@@ -1,7 +1,7 @@
 # ESTADO DEL PROYECTO — Starlink Venezuela
 
 > Documento de continuidad. Se actualiza al terminar cada tarea para no perder el foco.
-> Última actualización: **2026-06-09**
+> Última actualización: **2026-06-09** (planes invertidos corregidos por el usuario)
 
 ## Snapshot actual
 - **Rama:** `main` (todo fusionado y **desplegado en producción**). Último commit: `84ed558`.
@@ -9,7 +9,17 @@
 - **Push a GitHub:** YA NO pide token — quedó en el git credential store (`~/.git-credentials` 600 + `credential.helper store`). `git push origin main` funciona solo. Ver [[starlink-ve-deploy]].
 
 ## 🔜 PRÓXIMO AL RETOMAR (pendiente abierto)
-- **Corregir datos de planes invertidos en Neon (producción).** El usuario cargó los planes al revés: su costo en "Precio" y la venta en "Costo". Los rótulos del form ya se aclararon (commit `04ed685`), pero la DATA existente sigue invertida. Opciones: (a) el usuario intercambia los valores desde `/planes`; (b) yo lo corrijo por SQL en Neon (intercambiar `price`↔`cost`) — necesita `DATABASE_URL` de Neon (no disponible localmente). ⚠️ Por el modelo de **snapshots**, corregir el plan NO recalcula suscripciones activas (usan `priceLocked`) ni pagos/ventas ya registrados; solo afecta nuevas asignaciones. Si se quiere aplicar a suscripciones activas, actualizar su `priceLocked` aparte.
+- _(sin pendiente bloqueante)_ — el usuario corrigió manualmente los planes invertidos en `/planes` (2026-06-09). ⚠️ Recordatorio del modelo de **snapshots**: ese ajuste solo afecta nuevas asignaciones; suscripciones activas conservan su `priceLocked` y pagos/ventas ya registrados conservan su monto. Si más adelante se quiere que el cambio impacte suscripciones vigentes, hay que actualizar su `priceLocked` aparte.
+- Ver follow-ups opcionales más abajo.
+
+## ✅ Planes invertidos — RESUELTO (2026-06-09)
+- El usuario intercambió manualmente los valores `price`↔`cost` desde `/planes` en producción. Pendiente cerrado. Rótulos ya aclarados en `04ed685`.
+
+## 🆕 Sesión 2026-06-09/10 — Mejoras UX (topbar/breadcrumbs · densidad dashboard · forms) — DESPLEGADO ✓
+- **Breadcrumb automático en topbar.** Nuevo módulo compartido `src/components/layout/nav-items.ts` (`NAV_ITEMS` + `breadcrumbFor(pathname)`); el `sidebar.tsx` ahora importa de ahí (se eliminó la lista duplicada). `topbar.tsx` deriva la miga de pan de la ruta (Sección › Item, y en páginas de detalle el item queda como link) reutilizando los labels del nav. No hubo que tocar las 28 páginas (siguen pasando `title`). Si no hay match cae al `eyebrow` previo.
+- **Dashboard más compacto** (`dashboard/page.tsx`): `p-8→p-6`, `space-y-8→space-y-6`, KPI cards `p-5→p-3.5` (valor `text-3xl`→`text-2xl`, ícono 4→3.5, márgenes reducidos), `EmptyState` 240→200px. Charts (`components/dashboard/charts.tsx`) 260→210 y 240→200px.
+- **Forms de Venta y Lote aligerados** con nuevo `src/components/ui/collapsible-section.tsx` (disclosure plegable, cerrado por defecto): en **Venta** se plegó "Más opciones" (origen/marketing, notas, garantías); en **Lote** se plegó "Más detalles" (referencia, fecha de compra, seriales, notas). El flujo principal (cliente/productos/pago · producto/cantidad/costo/flete-imp) queda visible.
+- Verificado: `tsc --noEmit` ✓ y `next build` ✓ (vía Docker node:22). **DESPLEGADO ✓** (2026-06-10): pusheado a `main` → Vercel auto-construye.
 
 ## ✅ Sesión 2026-06-08/09 — completado y desplegado (cobros/dashboard/equipos/planes)
 - **Cobros — filtro por fecha de activación** (commit `84ed558`): la lista solo muestra suscripciones cuya `startDate <= fin del mes navegado`. Ya no aparecen clientes en meses anteriores a la activación de su plan. `src/app/(admin)/cobros/page.tsx` (`where: { status: "ACTIVA", startDate: { lte: periodoFin } }`).
@@ -49,7 +59,7 @@
 
 ## ✅ Planes: rótulos aclarados (DESPLEGADO, commit `04ed685`)
 - Form de plan (`planes/[id]/edit-form.tsx` y `planes/nuevo`): ahora **"Precio de venta (USD)" = lo que cobras al cliente** y **"Costo (USD)" = lo que te cuesta (a Starlink)**, con texto de ayuda. Evita invertir los campos.
-- ⚠️ PENDIENTE (data en producción): el usuario tenía los valores invertidos en Neon. Para corregir: intercambiar `price`↔`cost` en los planes afectados y decidir si actualizar `priceLocked` de suscripciones activas. **Recordar el modelo de snapshots:** cambiar el plan NO recalcula suscripciones (usan `priceLocked`) ni pagos/ventas ya registrados (guardan su monto); solo afecta nuevas asignaciones. Requiere acceso a Neon o que lo haga el usuario.
+- ✅ RESUELTO (2026-06-09): el usuario intercambió manualmente `price`↔`cost` en los planes desde `/planes`. **Recordar el modelo de snapshots:** el cambio NO recalcula suscripciones activas (usan `priceLocked`) ni pagos/ventas ya registrados (guardan su monto); solo afecta nuevas asignaciones.
 
 ## ✅ Decisión: se trabaja TODO sobre PRODUCCIÓN (Neon)
 - El usuario confirmó (2026-06-08) que la data operativa real vive en **Neon producción**, NO en la DB local 5435 (esa es demo may-4: 5 clientes ficticios — Carlos R., Ana **Pérez**, Luis M., Patricia H., Ricardo L. — y 0 equipos).

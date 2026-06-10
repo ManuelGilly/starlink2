@@ -39,15 +39,15 @@ function Kpi({
     tone === "danger" ? "text-destructive" : "text-foreground";
 
   return (
-    <div className="relative overflow-hidden rounded-sm border border-border bg-card p-5 transition-colors hover:border-border/80">
+    <div className="relative overflow-hidden rounded-sm border border-border bg-card p-3.5 transition-colors hover:border-border/80">
       <div className="flex items-start justify-between">
         <div className="eyebrow">{label}</div>
-        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+        {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground" />}
       </div>
-      <div className={`mt-3 flex items-baseline gap-2 ${valueColor}`}>
-        <div className="stat-value">{value}</div>
+      <div className={`mt-2 flex items-baseline gap-2 ${valueColor}`}>
+        <div className="font-display text-2xl font-semibold tracking-tight">{value}</div>
       </div>
-      <div className="mt-2 flex items-center justify-between gap-2">
+      <div className="mt-1.5 flex items-center justify-between gap-2">
         {hint ? <div className="text-[11px] text-muted-foreground">{hint}</div> : <span />}
         {delta && (
           <div className={`flex items-center gap-1 text-[11px] font-medium ${delta.positive ? "text-emerald-400" : "text-destructive"}`}>
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
   return (
     <>
       <Topbar title="Dashboard" eyebrow="Panel ejecutivo" />
-      <div className="space-y-8 p-8">
+      <div className="space-y-6 p-6">
         {/* ---- KPIs financieros ---- */}
         <section>
           <SectionTitle title="Resumen financiero" hint="Mes en curso" />
@@ -451,5 +451,5 @@ export default async function DashboardPage() {
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <div className="flex h-[240px] items-center justify-center text-[13px] text-muted-foreground">{text}</div>;
+  return <div className="flex h-[200px] items-center justify-center text-[13px] text-muted-foreground">{text}</div>;
 }

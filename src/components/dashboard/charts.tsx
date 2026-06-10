@@ -40,7 +40,7 @@ export function MonthlyBillingChart({
   data: Array<{ monthLabel: string; billing: number; purchases: number; profit: number }>;
 }) {
   return (
-    <ResponsiveContainer width="100%" height={260}>
+    <ResponsiveContainer width="100%" height={210}>
       <AreaChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="billingGrad" x1="0" y1="0" x2="0" y2="1">
@@ -80,7 +80,7 @@ export function CashflowChart({
   data: Array<{ monthLabel: string; billing: number; purchases: number }>;
 }) {
   return (
-    <ResponsiveContainer width="100%" height={240}>
+    <ResponsiveContainer width="100%" height={200}>
       <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={COLOR_MUTED} vertical={false} />
         <XAxis dataKey="monthLabel" stroke="#666" tick={{ fill: "#999", fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -109,7 +109,7 @@ export function MethodsDonutChart({ data }: { data: Array<{ key: string; amount:
   const total = data.reduce((acc, d) => acc + d.amount, 0);
   return (
     <div className="relative">
-      <ResponsiveContainer width="100%" height={240}>
+      <ResponsiveContainer width="100%" height={200}>
         <PieChart>
           <Pie
             data={data}
@@ -154,7 +154,7 @@ export function PlansBreakdownChart({ data }: { data: Array<{ key: string; count
   const total = data.reduce((a, d) => a + d.count, 0);
   return (
     <div className="relative">
-      <ResponsiveContainer width="100%" height={240}>
+      <ResponsiveContainer width="100%" height={200}>
         <PieChart>
           <Pie
             data={data}

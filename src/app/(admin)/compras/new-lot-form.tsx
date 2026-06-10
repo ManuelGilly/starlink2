@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 
 type Product = { id: string; sku: string; name: string; serialized: boolean };
 
@@ -165,28 +166,31 @@ export function NewLotForm({ products }: { products: Product[] }) {
         <Stat label="Costo real / unidad" value={`$${costs.landedUnit.toFixed(2)}`} highlight />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div>
-          <Label>Referencia (factura/orden)</Label>
-          <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="# factura" />
+      {/* Detalles secundarios plegados para aligerar el form */}
+      <CollapsibleSection title="Más detalles" hint={product?.serialized ? "referencia, fecha, seriales, notas" : "referencia, fecha, notas"}>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Referencia (factura/orden)</Label>
+            <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="# factura" />
+          </div>
+          <div>
+            <Label>Fecha de compra</Label>
+            <Input type="date" value={purchasedAt} onChange={(e) => setPurchasedAt(e.target.value)} />
+          </div>
         </div>
-        <div>
-          <Label>Fecha de compra</Label>
-          <Input type="date" value={purchasedAt} onChange={(e) => setPurchasedAt(e.target.value)} />
-        </div>
-      </div>
 
-      {product?.serialized && (
-        <div>
-          <Label>Seriales (opcional · uno por línea o separados por coma)</Label>
-          <Textarea value={serials} onChange={(e) => setSerials(e.target.value)} rows={3} placeholder={`Se crearán ${qty} unidades. Si indicas seriales, deben ser exactamente ${qty}.`} />
-        </div>
-      )}
+        {product?.serialized && (
+          <div>
+            <Label>Seriales (opcional · uno por línea o separados por coma)</Label>
+            <Textarea value={serials} onChange={(e) => setSerials(e.target.value)} rows={3} placeholder={`Se crearán ${qty} unidades. Si indicas seriales, deben ser exactamente ${qty}.`} />
+          </div>
+        )}
 
-      <div>
-        <Label>Notas (opcional)</Label>
-        <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
-      </div>
+        <div>
+          <Label>Notas (opcional)</Label>
+          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+        </div>
+      </CollapsibleSection>
 
       <div className="flex justify-end border-t pt-3">
         <Button disabled={loading || !productId}>{loading ? "Registrando..." : "Registrar lote"}</Button>

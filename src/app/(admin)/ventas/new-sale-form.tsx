@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import {
   PaymentSplitsEditor,
   emptySplit,
@@ -254,37 +255,40 @@ export function NewSaleForm({ clients, products, campaigns = [], rate = 0 }: { c
         )}
       </div>
 
-      {/* Origen / Marketing */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div>
-          <Label>Origen de la venta</Label>
-          <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={origin} onChange={(e) => { setOrigin(e.target.value); if (e.target.value !== "INSTAGRAM_ADS") setCampaignId(""); }}>
-            <option value="ORGANICO">Orgánico</option>
-            <option value="INSTAGRAM_ADS">Instagram Ads</option>
-            <option value="RECOMENDADO">Recomendado</option>
-          </select>
-        </div>
-        {origin === "INSTAGRAM_ADS" && campaigns.length > 0 && (
+      {/* Opciones secundarias plegadas para aligerar el flujo principal */}
+      <CollapsibleSection title="Más opciones" hint="origen, notas, garantías">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <Label>Campaña (opcional)</Label>
-            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={campaignId} onChange={(e) => setCampaignId(e.target.value)}>
-              <option value="">— Sin campaña específica —</option>
-              {campaigns.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+            <Label>Origen de la venta</Label>
+            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={origin} onChange={(e) => { setOrigin(e.target.value); if (e.target.value !== "INSTAGRAM_ADS") setCampaignId(""); }}>
+              <option value="ORGANICO">Orgánico</option>
+              <option value="INSTAGRAM_ADS">Instagram Ads</option>
+              <option value="RECOMENDADO">Recomendado</option>
             </select>
           </div>
-        )}
-      </div>
+          {origin === "INSTAGRAM_ADS" && campaigns.length > 0 && (
+            <div>
+              <Label>Campaña (opcional)</Label>
+              <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={campaignId} onChange={(e) => setCampaignId(e.target.value)}>
+                <option value="">— Sin campaña específica —</option>
+                {campaigns.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+              </select>
+            </div>
+          )}
+        </div>
 
-      <div>
-        <Label>Notas (opcional)</Label>
-        <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
-      </div>
+        <div>
+          <Label>Notas (opcional)</Label>
+          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+        </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
         <label className="flex items-center gap-2 text-sm text-muted-foreground">
           <input type="checkbox" checked={createWarranties} onChange={(e) => setCreateWarranties(e.target.checked)} />
           Crear garantías automáticamente
         </label>
+      </CollapsibleSection>
+
+      <div className="flex items-center justify-end border-t pt-3">
         <Button disabled={loading || items.length === 0 || !clientId}>{loading ? "Registrando..." : "Registrar venta"}</Button>
       </div>
     </form>
